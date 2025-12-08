@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "Pluto Timer Lite",
+    "slug": "pluto-timer-lite",
+    "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon/icon-full.png",
+    "scheme": "plutotimerlite",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.semisquircle.plutotimerlite",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/app-icon/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.semisquircle.plutotimerlite"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/app-icon/favicon.png"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Trickster-Reg-Semi.otf",
+            "./assets/fonts/Hades/Hades-TallFat.ttf",
+            "./assets/fonts/Hades/Hades-ShortFat.ttf",
+            "./assets/fonts/Hades/Hades-SuperShortFat.ttf",
+            "./assets/fonts/Hades/Hades-ShortSkinny.ttf"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Your location is used to determine your city name and solar altitude. Precise positioning is not required.",
+          "locationAlwaysPermission": "Your location is used to determine your city name and solar altitude. Precise positioning is not required.",
+          "locationWhenInUsePermission": "Your location is used to determine your city name and solar altitude. Precise positioning is not required."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "buildReactNativeFromSource": true
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "owner": "semisquircle",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c09519ac-0c60-4a73-9934-b6342a15d76f"
+      }
+    }
+  }
+}
