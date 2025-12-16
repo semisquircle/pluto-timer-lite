@@ -20,7 +20,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.semisquircle.plutotimerlite"
+      "package": "com.semisquircle.plutotimerlite",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -68,7 +72,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c09519ac-0c60-4a73-9934-b6342a15d76f"
+        "projectId": "0817883e-0f56-4a8e-b674-a940b66cd28c"
       }
     }
   }

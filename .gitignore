@@ -41,11 +41,16 @@ python/
 builds/
 crashes/
 assets/svgs
-assets/images/upgrade
 **/uncompressed
 **/*.txt
 **/*.html
 **/*.kra
 **/*.sh
 
-!assets/images/upgrade/upgrade-shear.png
+assets/images/app-icon/*
+!assets/images/app-icon/icon.png
+!assets/images/app-icon/icon-full.png
+!assets/images/app-icon/favicon.png
+
+assets/images/upgrade/*
+!assets/images/upgrade/upgrade-shear.jpg

@@ -1,6 +1,7 @@
 import { ToggleBtn } from "@/ref/btns";
 import AllCities from "@/ref/cities.json" with { type: "json" };
 import * as GLOBAL from "@/ref/global";
+import { BodyRotator } from "@/ref/rotators";
 import { SlotBottomShadow } from "@/ref/slot-shadows";
 import * as Haptics from "expo-haptics";
 import { Image as ExpoImage } from "expo-image";
@@ -8,16 +9,11 @@ import * as ExpoLocation from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Keyboard, KeyboardEvent, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Reanimated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { Circle, Path, Rect, Svg, Text as SvgText } from "react-native-svg";
+import { Path, Svg } from "react-native-svg";
 
 
 //* Reanimated
 const ReanimatedPressable = Reanimated.createAnimatedComponent(Pressable);
-const ReanimatedSvg = Reanimated.createAnimatedComponent(Svg);
-const ReanimatedRect = Reanimated.createAnimatedComponent(Rect);
-const ReanimatedCircle = Reanimated.createAnimatedComponent(Circle);
-const ReanimatedPath = Reanimated.createAnimatedComponent(Path);
-const ReanimatedSvgText = Reanimated.createAnimatedComponent(SvgText);
 
 
 //* Colors
@@ -348,6 +344,7 @@ export default function CityScreen() {
 		setCityResults(filteredCities);
 	};
 
+	// City textbox + cancel button animation
 	const cityInputFocusProgress = useSharedValue(0);
 	useEffect(() => {
 		cityInputFocusProgress.value = withTiming(
@@ -355,16 +352,18 @@ export default function CityScreen() {
 			{ duration: 1000 * GLOBAL.ui.animDuration / 2, easing: Easing.linear }
 		);
 	}, [isCityInputFocused]);
-
 	const [cityInputCancelBtnWidth, setCityInputCancelBtnWidth] = useState(0);
+	const [isCityInputActive, setIsCityInputActive] = useState(false);
 	const cityInputWrapperAnimStyle = useAnimatedStyle(() => {
 		return { width: GLOBAL.slot.width - (2 * GLOBAL.screen.horizOffset) - (cityInputFocusProgress.value * (cityInputCancelBtnWidth + GLOBAL.screen.horizOffset)) }
 	});
 
+	// Global results fade in/out animation
 	const cityInputFadeAnimStyle = useAnimatedStyle(() => {
 		return { opacity: cityInputFocusProgress.value }
 	});
 
+	// Dynamic vs static toggling
 	const youAreHereProgress = useSharedValue((YouAreHere) ? 0 : 1);
 	useEffect(() => {
 		youAreHereProgress.value = withTiming(
@@ -409,13 +408,14 @@ export default function CityScreen() {
 	//* Components
 	return (
 		<View style={[styles.content, { height: GLOBAL.slot.height }]}>
-			<ExpoImage style={styles.terra} source={require("@/assets/images/Terra.png")} />
-
+			<BodyRotator body={GLOBAL.terra} />
+			
 			<View style={[styles.skewContainer, GLOBAL.ui.skewStyle]}>
 				<Text style={styles.title}>Where Are You?</Text>
 
 				<ToggleBtn
 					style={{ marginBottom: GLOBAL.screen.horizOffset }}
+					color={GLOBAL.pluto.palette[2]}
 					getter={!YouAreHere}
 					optionTitles={[
 						{ title: "Dynamic", subtitle: "Location" },
@@ -426,17 +426,15 @@ export default function CityScreen() {
 						"m 50.172851,8.5126953 c -3.8183,0 -7.635476,2.3387637 -8.131347,7.0166017 0.991742,9.355692 15.272424,9.355692 16.26416,0 -0.495865,-4.677838 -4.314513,-7.0166017 -8.132813,-7.0166017 z m 0,0.7426758 c 2.826558,0 5.653587,2.0919599 5.157715,6.2739259 0.991742,8.36395 -11.305708,8.36395 -10.313965,0 -0.495871,-4.181966 2.329693,-6.2739259 5.15625,-6.2739259 z M 41.694336,28.496094 c -3.21458,4.617107 -7.129473,8.531996 -11.746582,11.746582 0.991736,5.537854 0.991743,11.073478 0,16.611328 h 2.975097 c -0.922882,-5.153327 -0.985146,-10.3054 -0.190429,-15.458496 2.634635,-3.595487 5.713779,-6.746121 9.235839,-9.454101 0.677354,9.544088 0.612385,19.08734 -0.183105,28.631836 -0.978076,5.428679 -2.851064,10.529589 -5.625,15.304687 2.825976,4.864691 4.718535,10.066303 5.680664,15.609375 l 2.796387,-1.016602 c -2.652481,-4.566021 -4.482757,-9.430765 -5.493164,-14.594238 1.009528,-5.158459 2.838863,-10.015963 5.487304,-14.578125 3.584157,-0.414976 7.167816,-0.414602 10.751954,0.0015 2.648077,4.56183 4.476404,9.418629 5.485839,14.57666 -1.0104,5.163474 -2.842148,10.028218 -5.494629,14.594238 l 2.796387,1.016567 C 59.133026,85.944227 61.027044,80.742621 63.853027,75.87793 61.058271,71.066997 59.176438,65.924575 58.20459,60.450196 57.418773,50.946392 57.357274,41.444825 58.031738,31.941407 c 3.522318,2.708084 6.602496,5.858406 9.237305,9.454101 0.794709,5.153096 0.730987,10.305169 -0.191895,15.458496 h 2.975098 c -0.991716,-5.537851 -0.99171,-11.073475 0,-16.611328 -4.61711,-3.214586 -8.531975,-7.129473 -11.746582,-11.746582 -5.537837,0.991703 -11.073472,0.991703 -16.611328,0 z m 8.563476,2.238281 c 1.842644,0.0084 3.600969,0.127349 5.280762,0.328125 0.70893,9.361903 0.711208,18.722095 0.0029,28.083985 -3.693262,0.441967 -7.386745,0.447285 -11.080078,0.0059 -0.708938,-9.361983 -0.700765,-18.72056 0.0073,-28.082519 2.018593,-0.241149 3.946418,-0.343849 5.789062,-0.33545 z"
 					]}
 					onPress={async () => {
-						const { granted: locGranted } = await ExpoLocation.getForegroundPermissionsAsync();
+						const { granted: locGranted} = await ExpoLocation.getForegroundPermissionsAsync();
 						if (locGranted) {
 							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-							SetYouAreHere(!YouAreHere);
 							if (!YouAreHere) {
-								(async () => {
-									await Geolocate();
-									ActiveCity.setNextBodyTimes();
-									await ScheduleNotifs();
-								})();
+								await Geolocate();
+								await ScheduleNotifs();
 							}
+							// else ActiveCity.setNextBodyTimes();
+							SetYouAreHere(!YouAreHere);
 							WriteNewSaveToFile(); //^ Save write
 						}
 						else locAlert();
@@ -460,8 +458,14 @@ export default function CityScreen() {
 						alignItems: "center"
 					}}>
 						<ReanimatedPressable
-							style={[styles.cityInputWrapper, cityInputWrapperAnimStyle]}
+							style={[
+								styles.cityInputWrapper,
+								{ transform: [{ scale: (isCityInputActive) ? 1.01 : 1}] },
+								cityInputWrapperAnimStyle
+							]}
+							onPressIn={() => setIsCityInputActive(true)}
 							onPress={handleCityInputPress}
+							onPressOut={() => setIsCityInputActive(false)}
 						>
 							<Svg style={styles.citySearchSvg} viewBox="0 0 100 100">
 								<Path
@@ -478,7 +482,9 @@ export default function CityScreen() {
 								placeholder="Search for a city"
 								placeholderTextColor={bodyTextColor}
 								value={cityInputValue}
+								onPressIn={() => setIsCityInputActive(true)}
 								onPress={handleCityInputPress}
+								onPressOut={() => setIsCityInputActive(false)}
 								onChangeText={(newValue) => {
 									setCityInputValue(newValue);
 									handleCitySearch(newValue);

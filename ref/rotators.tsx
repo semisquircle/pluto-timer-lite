@@ -1,18 +1,21 @@
 import * as GLOBAL from "@/ref/global";
 import * as Haptics from "expo-haptics";
 import { Image as ExpoImage } from "expo-image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { PanResponder, View } from "react-native";
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { withPause } from "react-native-redash";
 import { Ellipse, Svg } from "react-native-svg";
 
 
+const ReaniamtedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
+
 const bodyFrameWidth = 20;
 const bodyFrameHeight = 20;
 const totalBodyFrames = bodyFrameWidth * bodyFrameHeight;
 
-export const ActiveBodyRotator = () => {
+type BodyRotatorType = { body: GLOBAL.CelestialBody }
+export const BodyRotator = (props: BodyRotatorType) => {
 	const [isPlaceholderImgDisplayed, setIsPlaceholderImgDisplayed] = useState<boolean>(false);
 	const [isSpriteSheetDisplayed, setIsSpriteSheetDisplayed] = useState<boolean>(false);
 
@@ -38,6 +41,7 @@ export const ActiveBodyRotator = () => {
 				isDraggingBody
 			);
 		}
+		return () => { bodyFrame.value = bodyFrame.value; }
 	}, [isSpriteSheetDisplayed, isDraggingBody]);
 
 	const bodyAnimStyle = useAnimatedStyle(() => {
@@ -45,66 +49,59 @@ export const ActiveBodyRotator = () => {
 		const frameInt = modFrame(Math.round(bodyFrame.value + bodyFrameOffset.value));
 		return {
 			left: -(frameInt % bodyFrameWidth) * GLOBAL.slot.width,
-			top: -Math.floor(frameInt / bodyFrameWidth) * (GLOBAL.slot.width / 2),
+			top: -Math.floor(frameInt / bodyFrameWidth) * (GLOBAL.slot.width / 2) - ((props.body.name == "Terra") ? 1 : 0)
 		};
 	});
 
-	const bodyPanResponder = useMemo(() => {
-		return PanResponder.create({
-			onStartShouldSetPanResponder: (evt) => {
-				if (!isSpriteSheetDisplayed) return false; //? Only allow when sprite sheet is visible
-				const a = GLOBAL.slot.width / 2;
-				const b = GLOBAL.slot.width / 2;
-				const x = evt.nativeEvent.pageX - GLOBAL.screen.horizOffset - a;
-				const y = evt.nativeEvent.pageY - GLOBAL.screen.topOffset - GLOBAL.screen.horizOffset;
-				const theta = Math.atan2(x, y);
-				const r = (a * b) / Math.sqrt(a**2 * Math.sin(theta)**2 + b**2 * Math.cos(theta)**2);
-				return Math.sqrt(x**2 + y**2) <= r; //? Only accept touches inside ellipse
-			},
-			onPanResponderGrant: (evt) => {
-				isDraggingBody.value = true;
-				dragStartX.value = evt.nativeEvent.pageX;
-				dragStartY.value = evt.nativeEvent.pageY;
-			},
-			onPanResponderMove: (evt) => {
-				const dx = evt.nativeEvent.pageX - dragStartX.value;
-				const dy = evt.nativeEvent.pageY - dragStartY.value;
-				const theta = (GLOBAL.pluto.axialTilt ?? 0) * (Math.PI / 180);
-				const offsetAlongTilt = dx * Math.cos(theta) + dy * Math.sin(theta);
-				bodyFrameOffset.value = (lastBodyFrameOffset.value + (offsetAlongTilt / 2)) % totalBodyFrames;
+	const bodyPanResponder = PanResponder.create({
+		onStartShouldSetPanResponder: () => isSpriteSheetDisplayed,
+		onPanResponderGrant: (evt) => {
+			isDraggingBody.value = true;
+			dragStartX.value = evt.nativeEvent.pageX;
+			dragStartY.value = evt.nativeEvent.pageY;
+		},
+		onPanResponderMove: (evt) => {
+			const dx = evt.nativeEvent.pageX - dragStartX.value;
+			const dy = evt.nativeEvent.pageY - dragStartY.value;
+			const theta = (props.body.axialTilt ?? 0) * (Math.PI / 180);
+			const offsetAlongTilt = dx * Math.cos(theta) + dy * Math.sin(theta);
+			bodyFrameOffset.value = (lastBodyFrameOffset.value + (offsetAlongTilt / 2)) % totalBodyFrames;
 
-				const modFrame = (f: number) => ((f % totalBodyFrames) + totalBodyFrames) % totalBodyFrames;
-				const bodyFrameInt = modFrame(Math.round(bodyFrame.value + bodyFrameOffset.value));
-				if (Math.abs(bodyFrameInt - lastBodyFrameInt.value) > 0) {
-					lastBodyFrameInt.value = bodyFrameInt;
-					Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-				}
-			},
-			onPanResponderRelease: () => {
-				lastBodyFrameOffset.value = bodyFrameOffset.value;
-				isDraggingBody.value = false;
-			},
-		});
-	}, [isSpriteSheetDisplayed]);
+			const modFrame = (f: number) => ((f % totalBodyFrames) + totalBodyFrames) % totalBodyFrames;
+			const bodyFrameInt = modFrame(Math.round(bodyFrame.value + bodyFrameOffset.value));
+			if (Math.abs(bodyFrameInt - lastBodyFrameInt.value) > 0) {
+				lastBodyFrameInt.value = bodyFrameInt;
+				Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+			}
+		},
+		onPanResponderRelease: () => {
+			lastBodyFrameOffset.value = bodyFrameOffset.value;
+			isDraggingBody.value = false;
+		},
+	});
 
 	return (
 		<View
-			style={{
-				justifyContent: "center",
-				alignItems: "center",
-				width: GLOBAL.slot.width,
-				height: GLOBAL.slot.width / 2 - 1,
-				// backgroundColor: "pink",
-				overflow: "hidden",
-			}}
-			{...bodyPanResponder.panHandlers}
+			style={[
+				(props.body.name == "Terra") && {
+					position: "absolute",
+					bottom: 0,
+				},
+				{
+					justifyContent: "center",
+					alignItems: "center",
+					width: GLOBAL.slot.width,
+					height: GLOBAL.slot.width / 2 - 1,
+					// backgroundColor: "#111",
+					overflow: "hidden",
+				}
+			]}
 		>
 			<Svg
 				style={[
 					{
 						position: "absolute",
-						top: -GLOBAL.slot.width / 2,
-						// backgroundColor: "lightblue"
+						top: (props.body.name == "Terra") ? -1 : -GLOBAL.slot.width / 2 - 1,
 					},
 					GLOBAL.ui.btnShadowStyle()
 				]}
@@ -113,11 +110,12 @@ export const ActiveBodyRotator = () => {
 				viewBox={`0 0 ${GLOBAL.slot.width} ${GLOBAL.slot.width}`}
 			>
 				<Ellipse
-					fill={GLOBAL.pluto.colors[2]}
+					fill={props.body.colors[2]}
 					cx={GLOBAL.slot.width / 2}
-					cy={GLOBAL.slot.width / 2 - 1}
+					cy={GLOBAL.slot.width / 2 + ((props.body.name == "Terra") ? 1 : -1)}
 					rx={GLOBAL.slot.width / 2 - 1}
 					ry={GLOBAL.slot.width / 2 - 1}
+					{...((props.body.name == "Pluto") && bodyPanResponder.panHandlers)}
 				/>
 			</Svg>
 
@@ -125,41 +123,33 @@ export const ActiveBodyRotator = () => {
 				<ExpoImage
 					style={{
 						position: "absolute",
-						top: -GLOBAL.slot.width / 2 - 1,
+						top: (props.body.name == "Terra") ? -1 : -GLOBAL.slot.width / 2 - 1,
 						width: GLOBAL.slot.width,
 						height: GLOBAL.slot.width,
 					}}
-					source={GLOBAL.pluto.thumbnail}
+					source={props.body.thumbnail}
+					pointerEvents="none"
 					cachePolicy="disk"
-					onDisplay={() => {
-						setIsPlaceholderImgDisplayed(true);
-					}}
+					onDisplay={() => setIsPlaceholderImgDisplayed(true)}
 				/>
 			)}
 
 			{(isPlaceholderImgDisplayed) && (
-				<Reanimated.View style={[
-					{
-						position: "absolute",
-						width: bodyFrameWidth * GLOBAL.slot.width,
-						height: bodyFrameHeight * (GLOBAL.slot.width / 2),
-						// backgroundColor: "lightgreen",
-					},
-					bodyAnimStyle
-				]}>
-					<ExpoImage
-						style={{
-							width: "100%",
-							height: "100%",
-						}}
-						source={GLOBAL.pluto.spriteSheet}
-						contentFit="fill"
-						cachePolicy="none"
-						onDisplay={() => {
-							setIsSpriteSheetDisplayed(true);
-						}}
-					/>
-				</Reanimated.View>
+				<ReaniamtedExpoImage
+					style={[
+						{
+							position: "absolute",
+							width: bodyFrameWidth * GLOBAL.slot.width,
+							height: bodyFrameHeight * (GLOBAL.slot.width / 2),
+						},
+						bodyAnimStyle
+					]}
+					source={props.body.spriteSheet}
+					pointerEvents="none"
+					contentFit="fill"
+					cachePolicy="memory"
+					onDisplay={() => setIsSpriteSheetDisplayed(true)}
+				/>
 			)}
 		</View>
 	);

@@ -1,6 +1,5 @@
 import { RectBtn } from "@/ref/btns";
 import * as GLOBAL from "@/ref/global";
-// import StarField from "@/ref/star-field";
 import MaskedView from "@react-native-masked-view/masked-view";
 import * as Application from "expo-application";
 import { useFonts } from "expo-font";
@@ -19,11 +18,9 @@ const ReanimatedSafeAreaView = Reanimated.createAnimatedComponent(SafeAreaView);
 const ReanimatedPath = Reanimated.createAnimatedComponent(Path);
 const ReanimatedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
 
+
 //* Tabs
 const tabIconDimension = 0.11 * GLOBAL.slot.width;
-const tabIconX = 0.52 * GLOBAL.slot.width;
-const tabIconY = 0.185 * GLOBAL.slot.width;
-
 const tabArray: {
 	key: string;
 	href: any,
@@ -51,7 +48,7 @@ const tabArray: {
 		handlePath: "m 72.226066,23.942213 c -9.794274,2.393299 -19.452468,2.798319 -27.101273,2.436052 a 4.3134337,4.3134337 144.35159 0 0 -4.398139,3.154383 l -2.647644,9.883434 a 2.9339568,2.9339568 55.155073 0 0 2.579159,3.704721 c 9.899723,0.76477 27.705655,0.865307 45.001851,-5.494633 a 2.2757039,2.2757039 101.77602 0 0 0.782586,-3.753876 l -8.361287,-8.361287 a 6.1806503,6.1806503 14.998934 0 0 -5.855253,-1.568794 z",
 		unpressedSrc: require("../assets/images/tabs/unpressed/2.png"),
 		pressedSrc: require("../assets/images/tabs/pressed/2.png"),
-		iconPath: GLOBAL.pluto.icon,
+		iconPath: GLOBAL.pluto.icon!,
 		iconStyle: {
 			marginLeft: 0.225 * GLOBAL.slot.width,
 			marginTop: 0.24 * GLOBAL.slot.width,
@@ -70,17 +67,6 @@ const tabArray: {
 		},
 	},
 ];
-
-
-//* Notifications
-// Notifications.setNotificationHandler({
-// 	handleNotification: async () => ({
-// 		shouldPlaySound: true,
-// 		shouldSetBadge: true,
-// 		shouldShowBanner: true,
-// 		shouldShowList: true,
-// 	}),
-// });
 
 
 //* Prompts
@@ -240,24 +226,30 @@ export default function Layout() {
 
 
 	//* Meat and potatoes
+	const [isReadyForSlot, setIsReadyForSlot] = useState(false);
+
 	useEffect(() => {
 		GLOBAL.screen.topOffset = screenInsets.top;
 		InitDefaultSaveData();
 
-		// Development
-		WriteDefaultSaveToFile(); //^ Save write
-		SetIsSaveLoaded(true);
+		//? Development
+		// WriteDefaultSaveToFile(); //^ Save write
+		// SetIsSaveLoaded(true);
 
-		// Production
-		// LoadSave();
+		//? Production
+		LoadSave();
 	}, []);
 
 	useEffect(() => {
 		if (IsSaveLoaded && PromptsCompleted[0] && PromptsCompleted[1]) {
 			(async () => {
-				if (YouAreHere) await Geolocate();
-				ActiveCity.setNextBodyTimes();
+				if (YouAreHere) {
+					await Geolocate();
+					WriteNewSaveToFile(); //^ Save write
+				}
+				else ActiveCity.setNextBodyTimes();
 				await ScheduleNotifs();
+				setIsReadyForSlot(true);
 			})();
 		}
 	}, [IsSaveLoaded, PromptsCompleted]);
@@ -302,7 +294,7 @@ export default function Layout() {
 		}
 	});
 
-	// Body
+	// Main
 	const mainProgress = useSharedValue(0);
 	const mainAnimStyle = useAnimatedStyle(() => {
 		return {
@@ -335,12 +327,12 @@ export default function Layout() {
 			mainProgress.value = withDelay(
 				1000 * GLOBAL.ui.animDuration,
 				withTiming(
-					(PromptsCompleted[0] && PromptsCompleted[1]) ? 1 : 0,
+					(isReadyForSlot) ? 1 : 0,
 					{ duration: 2 * 1000 * GLOBAL.ui.animDuration, easing: Easing.linear }
 				)
 			);
 		}
-	}, [IsSaveLoaded, PromptsCompleted]);
+	}, [IsSaveLoaded, PromptsCompleted, isReadyForSlot]);
 
 
 	//* Components
@@ -495,7 +487,7 @@ export default function Layout() {
 					}
 				>
 					<View style={styles.slotBG} pointerEvents="none"></View>
-					<Slot />
+					{(isReadyForSlot) && <Slot />}
 				</MaskedView>
 
 				{/* Tab handles */}
@@ -547,20 +539,16 @@ export default function Layout() {
 							]}
 							pointerEvents="auto"
 							onPressIn={() => {
-								if (t !== ActiveTab) {
-									setTabBeingPressed(t);
-								}
+								if (t !== ActiveTab) setTabBeingPressed(t);
 							}}
 							onPress={() => {
 								if (t !== ActiveTab) {
 									SetActiveTab(t);
-									router.dismissTo(tabArray[t].href);
+									router.replace(tabArray[t].href);
 								}
 							}}
 							onPressOut={() => {
-								if (t !== ActiveTab) {
-									setTabBeingPressed(null);
-								}
+								if (t !== ActiveTab) setTabBeingPressed(null);
 							}}
 						></Pressable>
 					))}
@@ -570,11 +558,11 @@ export default function Layout() {
 			<Prompt
 				animStyle={notifPromptAnimStyle}
 				title="² Notifications"
-				img={require("../assets/images/prompts/notifications-shear.png")}
+				img={require("../assets/images/prompts/notifications-shear.jpg")}
 				imgColor="#d4d5d0"
 				subtitles={[
 					`${Application.applicationName} can send notifications to remind you when your next Pluto Time occurs.`,
-					"Turning on notifications allows you to receive one to three reminders each Pluto Time, helping you make the most of the moment!",
+					"Turning on notifications allows you to receive a reminder for Pluto Times in the first, second, or both halves of the day, helping you make the most of the moment!",
 					"This option can be changed later in the Settings app."
 				]}
 				btn={
@@ -587,17 +575,13 @@ export default function Layout() {
 						isActive={isNotifBtnActive}
 						color={GLOBAL.pluto.palette[2]}
 						pressedColor={GLOBAL.pluto.palette[3]}
-						onPressIn={() => {
-							setIsNotifBtnPressed(true);
-						}}
+						onPressIn={() => setIsNotifBtnPressed(true)}
 						onPress={async () => {
 							await Notifications.requestPermissionsAsync();
 							SetPromptCompleted(1, true);
 							WriteNewSaveToFile(); //^ Save write
 						}}
-						onPressOut={() => {
-							setIsNotifBtnPressed(false);
-						}}
+						onPressOut={() => setIsNotifBtnPressed(false)}
 					/>
 				}
 			/>
@@ -605,7 +589,7 @@ export default function Layout() {
 			<Prompt
 				animStyle={locationPromptAnimStyle}
 				title="¹ Location Services"
-				img={require("../assets/images/prompts/location-shear.png")}
+				img={require("../assets/images/prompts/location-shear.jpg")}
 				imgColor="black"
 				subtitles={[
 					`${Application.applicationName} can use your latitude/longitude to\ndetermine your geolocation and solar altitude,\nkind of like a weather app.`,
@@ -622,17 +606,13 @@ export default function Layout() {
 						isActive={isLocationBtnActive}
 						color={GLOBAL.pluto.palette[2]}
 						pressedColor={GLOBAL.pluto.palette[3]}
-						onPressIn={() => {
-							setIsLocationBtnPressed(true);
-						}}
+						onPressIn={() => setIsLocationBtnPressed(true)}
 						onPress={async () => {
 							await ExpoLocation.requestForegroundPermissionsAsync();
 							SetPromptCompleted(0, true);
 							WriteNewSaveToFile(); //^ Save write
 						}}
-						onPressOut={() => {
-							setIsLocationBtnPressed(false);
-						}}
+						onPressOut={() => setIsLocationBtnPressed(false)}
 					/>
 				}
 			/>

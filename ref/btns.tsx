@@ -29,7 +29,7 @@ export const RectBtn = (props: RectBtnProps) => {
 	useEffect(() => {
 		pressProgress.value = withTiming(
 			(props.isPressed || props.isActive) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.animDuration, easing: Easing.linear }
+			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
 		);
 	}, [props.isPressed, props.isActive]);
 	const animStyle = useAnimatedStyle(() => {
@@ -153,7 +153,7 @@ export const CircleBtn = (props: CircleBtnProps) => {
 	useEffect(() => {
 		pressProgress.value = withTiming(
 			(props.isPressed) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.animDuration, easing: Easing.linear }
+			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
 		);
 	}, [props.isPressed]);
 	const animStyle = useAnimatedStyle(() => {
@@ -278,7 +278,7 @@ export const SemiEllipseBtn = (props: SemiEllipseBtnProps) => {
 	useEffect(() => {
 		pressProgress.value = withTiming(
 			(props.isPressed) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.animDuration, easing: Easing.linear }
+			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
 		);
 	}, [props.isPressed]);
 	const animProps = useAnimatedProps(() => {
@@ -439,6 +439,7 @@ const toggleBtnIconDimension = 3 * GLOBAL.ui.bodyTextSize;
 
 type ToggleBtnProps = {
 	style?: any;
+	color: any;
 	getter: boolean;
 	optionTitles: any[],
 	optionIcons?: string[],
@@ -468,6 +469,7 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 					width: toggleBtnWidth,
 					height: toggleBtnHeight,
 					borderRadius: toggleBtnBorderRadius,
+					transform: [{ scale: (toggleState !== null) ? 1.01 : 1 }],
 					overflow: "hidden",
 				},
 				props.style
@@ -484,7 +486,7 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 						alignItems: "center",
 						width: (toggleBtnWidth - (2 * GLOBAL.ui.inputBorderWidth)) / 2,
 						height: toggleBtnHeight - (2 * GLOBAL.ui.inputBorderWidth),
-						backgroundColor: (toggleState == f) ? GLOBAL.pluto.palette[0] + "22" : "transparent",
+						// backgroundColor: (toggleState == f) ? GLOBAL.pluto.palette[0] + "22" : "transparent",
 						borderRadius: toggleBtnBorderRadius - GLOBAL.ui.inputBorderWidth,
 					}}
 					onPressIn={() => {
@@ -539,7 +541,7 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 				</Defs>
 
 				<Rect
-					fill={GLOBAL.pluto.palette[2]}
+					fill={props.color}
 					x={0}
 					y={0}
 					width={(toggleBtnWidth - (2 * GLOBAL.ui.inputBorderWidth)) / 2}
@@ -572,7 +574,7 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 						color: interpolateColor(
 							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
 							[0, 1],
-							[GLOBAL.pluto.palette[2], GLOBAL.ui.palette[0]]
+							[props.color, GLOBAL.ui.palette[0]]
 						)
 					}
 				});
@@ -582,12 +584,12 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 						fill: interpolateColor(
 							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
 							[0, 1],
-							[GLOBAL.pluto.palette[2], GLOBAL.ui.palette[0]]
+							[props.color, GLOBAL.ui.palette[0]]
 						),
 						stroke: interpolateColor(
 							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
 							[0, 1],
-							[GLOBAL.pluto.palette[2], GLOBAL.ui.palette[0]]
+							[props.color, GLOBAL.ui.palette[0]]
 						)
 					}
 				});

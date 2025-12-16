@@ -1,5 +1,5 @@
 import * as GLOBAL from "@/ref/global";
-import { ActiveBodyRotator } from "@/ref/rotators";
+import { BodyRotator } from "@/ref/rotators";
 import { SlotTopShadow } from "@/ref/slot-shadows";
 import { Image as ExpoImage } from "expo-image";
 import { useEffect, useState } from "react";
@@ -13,9 +13,9 @@ const ReaniamtedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
 export default function HomeScreen() {
 	//* App storage
 	const IsSaveLoaded = GLOBAL.useSaveStore(state => state.isSaveLoaded);
-	const ActiveCity = GLOBAL.useSaveStore((state) => state.activeCity);
-	const YouAreHere = GLOBAL.useSaveStore((state) => state.youAreHere);
-	const IsFormat24Hour = GLOBAL.useSaveStore((state) => state.isFormat24Hour);
+	const ActiveCity = GLOBAL.useSaveStore(state => state.activeCity);
+	const YouAreHere = GLOBAL.useSaveStore(state => state.youAreHere);
+	const IsFormat24Hour = GLOBAL.useSaveStore(state => state.isFormat24Hour);
 
 
 	//* Colors
@@ -25,8 +25,9 @@ export default function HomeScreen() {
 
 
 	//* Finger animation
-	const fingerTranslateDistance = 100;
-	const fingerTheta = GLOBAL.pluto.axialTilt! * (Math.PI / 180);
+	const fingerDimension = 0.25 * GLOBAL.slot.width;
+	const fingerTranslateDistance = GLOBAL.slot.width / 3;
+	const fingerTheta = GLOBAL.pluto.axialTilt * (Math.PI / 180);
 	const fingerDx = Math.cos(fingerTheta);
 	const fingerDy = Math.sin(fingerTheta);
 
@@ -86,8 +87,8 @@ export default function HomeScreen() {
 	}
 
 	const nextBodyTime = (IsFormat24Hour) ? ActiveCity.get24HourClockTime() : ActiveCity.get12HourClockTime();
-	// const nextBodyTime = "11:12PM";
 	const nextBodyDate = ActiveCity.getDateLong();
+
 	let nextBodyTimeFont = GLOBAL.ui.timeFonts[(IsFormat24Hour) ? 2 : 0];
 	let nextBodyTimeFontWidth = getFontWidth(nextBodyTime, nextBodyTimeFont);
 	if (nextBodyTimeFontWidth < 1.2 * nextBodyTimeFont.glyph_height) {
@@ -183,15 +184,11 @@ export default function HomeScreen() {
 
 		finger: {
 			position: "absolute",
-			top: 0.2 * GLOBAL.slot.width,
-			width: 0.25 * GLOBAL.slot.width,
-			height: 0.25 * GLOBAL.slot.width,
+			top: (GLOBAL.slot.width / 3) - (fingerDimension / 2),
+			left: (GLOBAL.slot.width / 2) - (0.4 * fingerDimension),
+			width: fingerDimension,
+			height: fingerDimension,
 			zIndex: 9999,
-		},
-
-		fingerImg: {
-			width: "100%",
-			height: "100%",
 		},
 
 		bodyTimeTextContainer: {
@@ -310,18 +307,18 @@ export default function HomeScreen() {
 					textAlign: "center",
 					fontFamily: "Trickster-Reg-Semi",
 					fontSize: 0.65 * GLOBAL.ui.bodyTextSize,
-					lineHeight: 0.75 * GLOBAL.ui.bodyTextSize,
+					lineHeight: 0.7 * GLOBAL.ui.bodyTextSize,
 					color: GLOBAL.pluto.palette[0],
-				}}>LITE{"\n"}Version</Text>
+				}}>Lite{"\n"}Version</Text>
 			</View>
 
-			{(IsSaveLoaded) && (
-				<ActiveBodyRotator />
-			)}
+			{(IsSaveLoaded) && <BodyRotator body={GLOBAL.pluto} />}
 
-			<Reanimated.View style={[styles.finger, fingerAnimStyle]} pointerEvents="none">
-				<ExpoImage style={styles.fingerImg} source={require("../assets/images/finger.png")} />
-			</Reanimated.View>
+			<ReaniamtedExpoImage
+				style={[styles.finger, fingerAnimStyle]}
+				source={require("../assets/images/finger.png")}
+				pointerEvents="none"
+			/>
 
 			<View style={styles.bodyTimeTextContainer}>
 				<Reanimated.View

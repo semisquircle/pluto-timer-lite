@@ -1,12 +1,12 @@
 import { RectBtn, ToggleBtn } from "@/ref/btns";
 import * as GLOBAL from "@/ref/global";
 import { SlotBottomShadow, SlotTopShadow } from "@/ref/slot-shadows";
-import * as Application from "expo-application";
 import * as Haptics from "expo-haptics";
 import { Image as ExpoImage } from "expo-image";
+import * as Linking from "expo-linking";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Reanimated, { interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Circle, Defs, Path, RadialGradient, Rect, Stop, Svg, Text as SvgText, TextPath, TSpan } from "react-native-svg";
 
@@ -229,9 +229,7 @@ const CurlyBracket = (props: CurlyBracketTypes) => {
 
 export default function SettingsScreen() {
 	//* App storage
-	const WriteDefaultSaveToFile = GLOBAL.useSaveStore(state => state.writeDefaultSaveToFile);
-	const LoadSave = GLOBAL.useSaveStore(state => state.loadSave);
-	const SetIsSaveLoaded = GLOBAL.useSaveStore(state => state.setIsSaveLoaded);
+	const Version = GLOBAL.useSaveStore(state => state.version);
 	const WriteNewSaveToFile = GLOBAL.useSaveStore(state => state.writeNewSaveToFile);
 
 	const SetPromptCompleted = GLOBAL.useSaveStore(state => state.setPromptCompleted);
@@ -294,7 +292,7 @@ export default function SettingsScreen() {
 								height: 0.6 * upgradeImgWidth,
 								backgroundColor: GLOBAL.pluto.palette[0],
 							}}
-							source={require("@/assets/images/upgrade/upgrade-shear.png")}
+							source={require("../assets/images/upgrade/upgrade-shear.jpg")}
 						/>
 
 						<View style={{
@@ -320,7 +318,7 @@ export default function SettingsScreen() {
 											marginTop: (i > 0) ? 0.2 * GLOBAL.ui.bodyTextSize : 0,
 											color: inputOffColor,
 										}}
-									>³ {feature}</Text>
+									>³  {feature}</Text>
 								))}
 							</View>
 						</View>
@@ -335,15 +333,11 @@ export default function SettingsScreen() {
 						isActive={isUpgradeBtnActive}
 						color={btnBgColor}
 						pressedColor={GLOBAL.pluto.palette[3]}
-						onPressIn={() => {
-							setIsUpgradeBtnPressed(true);
-						}}
+						onPressIn={() => setIsUpgradeBtnPressed(true)}
 						onPress={() => {
 							Linking.openURL("itms-apps://itunes.apple.com/app/id6754513496");
 						}}
-						onPressOut={() => {
-							setIsUpgradeBtnPressed(false);
-						}}
+						onPressOut={() => setIsUpgradeBtnPressed(false)}
 					/>
 
 					<Text style={[styles.subtitle, { color: subTitleColor }]}>
@@ -351,6 +345,8 @@ export default function SettingsScreen() {
 					</Text>
 					<View style={styles.freqOptionContainer}>
 						{notifFreqOptions.map((option, i) => {
+							const [isNotifFreqOptionActive, setIsNotifFreqOptionActive] = useState(false);
+							
 							const notifFreqAnimProgress = useSharedValue(NotifFreqs[i] ? 1 : 0);
 							useEffect(() => {
 								notifFreqAnimProgress.value = withTiming(
@@ -411,7 +407,12 @@ export default function SettingsScreen() {
 							return (
 								<ReanimatedPressable
 									key={`freq-option-${i}`}
-									style={[styles.freqOption, containerAnimStyle]}
+									style={[
+										styles.freqOption,
+										{ transform: [{ scale: (isNotifFreqOptionActive) ? 1.01 : 1 }] },
+										containerAnimStyle
+									]}
+									onPressIn={() => setIsNotifFreqOptionActive(true)}
 									onPress={async () => {
 										const { granted: notifsGranted } = await Notifications.getPermissionsAsync();
 										if (notifsGranted) {
@@ -422,6 +423,7 @@ export default function SettingsScreen() {
 										}
 										else notifAlert();
 									}}
+									onPressOut={() => setIsNotifFreqOptionActive(false)}
 								>
 									<Svg
 										style={styles.freqOptionSvg}
@@ -531,6 +533,7 @@ export default function SettingsScreen() {
 						How do you want your time displayed?
 					</Text>
 					<ToggleBtn
+						color={GLOBAL.pluto.palette[2]}
 						getter={IsFormat24Hour}
 						optionTitles={[
 							{ title: "12-Hour Clock", subtitle: "(Ex: 7:30 PM)" },
@@ -635,7 +638,7 @@ export default function SettingsScreen() {
 					/> */}
 
 					<Text style={[styles.subtitle, { textAlign: "center", color: inputOffColor }]}>
-						Version {Application.nativeApplicationVersion}
+						Version {Version}
 					</Text>
 
 					<View style={styles.settingsScrollSpacer}></View>
