@@ -332,10 +332,10 @@ export default function CityScreen() {
 		const lowerText = text.toLowerCase();
 		const filteredCities = [];
 		for (const city of allCities) {
-			const cityFullNameLower = city.fullName.join(", ").toLowerCase();
+			const cityFullNameLower = city.fullName.toLowerCase();
 			if (
 				cityFullNameLower.includes(lowerText) ||
-				cityFullNameLower.replace(/, /g, " ").includes(lowerText)
+				cityFullNameLower.replace(/[^\w\s]/gi, "").includes(lowerText)
 			) {
 				filteredCities.push(city);
 				if (filteredCities.length === 13) break;
@@ -401,8 +401,8 @@ export default function CityScreen() {
 	const latRad = ActiveCity.lat * Math.PI / 180;
 	const baseX = Math.floor(n * ((ActiveCity.lng + 180) / 360));
 	const baseY = Math.floor(n * (1 - (Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI)) / 2);
-	// const pinName = ActiveCity.fullName.join(", ");
-	const pinName = ActiveCity.fullName[0] + ", " + (states[ActiveCity.fullName[1]] || provinces[ActiveCity.fullName[1]] || ActiveCity.fullName[1]);
+	const fullName = ActiveCity.fullName.split(", ");
+	const pinName = ActiveCity.name + ", " + (states[fullName[1]] || provinces[fullName[1]] || fullName[1]);
 
 
 	//* Components
@@ -551,9 +551,7 @@ export default function CityScreen() {
 										setCityResults([]);
 									}}
 								>
-									<Text style={styles.cityResultText} numberOfLines={1}>
-										{cityResults[i].fullName.join(", ")}
-									</Text>
+									<Text style={styles.cityResultText} numberOfLines={1}>{cityResults[i].fullName}</Text>
 								</TouchableOpacity>
 							))}
 						</ScrollView>

@@ -108,8 +108,8 @@ export const ui = {
 			android: {
 				transform: [
 					{perspective: 82100},
-					{rotateX: "25deg"},
-					{rotateY: "-25deg"},
+					{rotateX: "-25deg"},
+					{rotateY: "25deg"},
 					{scale: 1.1},
 				],
 			},
@@ -189,12 +189,12 @@ const numBodyTimes = 60;
 
 export class City {
 	name: string;
-	fullName: string[];
+	fullName: string;
 	lat: number;
 	lng: number;
 	nextBodyTimes = Array.from({ length: numBodyTimes }, () => new Date(Date.now() + 2 * ONE_DAY));
 
-	constructor(name: string, fullName: string[], lat: number, lng: number) {
+	constructor(name: string, fullName: string, lat: number, lng: number) {
 		this.name = name;
 		this.fullName = fullName;
 		this.lat = lat;
@@ -217,27 +217,29 @@ export class City {
 		return results.slice(0, numBodyTimes);
 	}
 
-	// getNextTestTimes(start: Date): Date[] {
-	// 	const dt = 5;
-	// 	const results = [];
-	// 	const next = new Date(start);
-	// 	next.setSeconds(0, 0);
-	// 	const nextMinute = Math.ceil((start.getMinutes() + 1) / dt) * dt;
-	// 	if (nextMinute >= 60) {
-	// 		next.setHours(next.getHours() + 1);
-	// 		next.setMinutes(0);
-	// 	}
-	// 	else next.setMinutes(nextMinute);
-	// 	for (let i = 0; i < this.nextBodyTimes.length; i++) {
-	// 		results.push(new Date(next.getTime() + i * dt * ONE_MINUTE));
-	// 	}
-	// 	return results;
-	// }
+	getNextTestTimes(start: Date): Date[] {
+		const dt = 5;
+		const results = [];
+		const next = new Date(start);
+		next.setSeconds(0, 0);
+		const nextMinute = Math.ceil((start.getMinutes() + 1) / dt) * dt;
+		if (nextMinute >= 60) {
+			next.setHours(next.getHours() + 1);
+			next.setMinutes(0);
+		}
+		else next.setMinutes(nextMinute);
+		for (let i = 0; i < this.nextBodyTimes.length; i++) {
+			results.push(new Date(next.getTime() + i * dt * ONE_MINUTE));
+		}
+		return results;
+	}
 
 	setNextBodyTimes() {
+		// const now = new Date(2025, 3, 20, 12, 0, 0);
 		const now = new Date();
 		const start = new Date(now.getTime() - bodyTimeLength);
 		this.nextBodyTimes = this.getNextBodyTimes(start);
+		// this.nextBodyTimes = this.getNextTestTimes(start);
 		console.log(`Calculated times for ${this.name}.`);
 	}
 
@@ -388,8 +390,8 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 			const position = await ExpoLocation.getCurrentPositionAsync({ accuracy: locAccuracy });
 			const lat = position.coords.latitude;
 			const lon = position.coords.longitude;
-			// const lat = 64.1470;
-			// const lon = -21.9408;
+			// const lat = 42.15032;
+			// const lon = -84.03772;
 			const results = await ExpoLocation.reverseGeocodeAsync({
 				latitude: lat,
 				longitude: lon,
@@ -397,7 +399,7 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 
 			const parts = [results[0].city || results[0].name, results[0].region, results[0].country];
 			const name = parts.filter(Boolean)[0];
-			const fullName = parts.filter(Boolean) as string[];
+			const fullName = parts.filter(Boolean).join(", ");
 			const city = new City(name!, fullName, lat, lon);
 			city.setNextBodyTimes();
 			get().setActiveCity(city);
@@ -420,11 +422,12 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 			const youAreHere = get().youAreHere;
 			const notifFreqs = get().notifFreqs;
 
+			let numScheduled = 0;
 			Notifications.cancelAllScheduledNotificationsAsync();
 			activeCity.nextBodyTimes.map((nextBodyTime) => {
 				if (nextBodyTime.getTime() > Date.now()) {
 					const isBeforeNoon = (nextBodyTime.getHours() < 12);
-					if ((isBeforeNoon == notifFreqs[0]) || (!isBeforeNoon == notifFreqs[1])) {
+					if ((isBeforeNoon && notifFreqs[0]) || (!isBeforeNoon && notifFreqs[1])) {
 						Notifications.scheduleNotificationAsync({
 							content: {
 								title: `It's Pluto Time${(youAreHere) ? ` in ${activeCity.name}` : ""}!`,
@@ -438,11 +441,12 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 								date: nextBodyTime,
 							},
 						});
+						numScheduled++;
 					}
 				}
 			});
 
-			console.log(`Notification scheduling was a success! Scheduled for: ${activeCity.name}`);
+			console.log(`Notification scheduling was a success! ${numScheduled} Pluto Times scheduled in ${activeCity.name}${(numScheduled > 0) ? `, next scheduled for ${activeCity.get12HourClockTime()}.` : "."}`);
 		} else {
 			get().disableAllNotifs();
 			console.log("Notifications not granted, disabled all.");
@@ -456,7 +460,8 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 	activeTab: 1,
 	setActiveTab: (index) => set({ activeTab: index }),
 
-	activeCity: new City("Reykjavík", ["Reykjavik", "Capital Region", "Iceland"], 64.13548, -21.89541),
+	activeCity: new City("Reykjavík", "Reykjavik, Capital Region, Iceland", 64.13548, -21.89541),
+	// activeCity: new City("Manchester", "Manchester, Michigan, United States", 42.15032, -84.03772),
 	setActiveCity: (city) => set({ activeCity: city }),
 	youAreHere: true,
 	setYouAreHere: (bool) => set({ youAreHere: bool }),

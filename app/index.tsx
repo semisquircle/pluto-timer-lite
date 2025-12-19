@@ -279,16 +279,21 @@ export default function HomeScreen() {
 				source={require("../assets/images/stars.png")}
 			/>
 
-			<View style={{
-				position: "absolute",
-				left: 0.005 * GLOBAL.slot.width,
-				top: 0.38 * GLOBAL.slot.width,
-				justifyContent: "center",
-				alignItems: "center",
-				width: 0.27 * GLOBAL.slot.width,
-				height: 0.27 * GLOBAL.slot.width,
-				transform: [{ rotate: "-10deg" }],
-			}}>
+			<View
+				style={[
+					{
+						position: "absolute",
+						left: 0.005 * GLOBAL.slot.width,
+						top: 0.38 * GLOBAL.slot.width,
+						justifyContent: "center",
+						alignItems: "center",
+						width: 0.27 * GLOBAL.slot.width,
+						height: 0.27 * GLOBAL.slot.width,
+						transform: [{ rotate: "-10deg" }],
+					},
+					GLOBAL.ui.btnShadowStyle(),
+				]}
+			>
 				<Svg
 					style={{ position: "absolute" }}
 					width="100%"
@@ -296,20 +301,23 @@ export default function HomeScreen() {
 					viewBox="0 0 100 100"
 				>
 					<Path
-						fill={GLOBAL.ui.palette[1]}
+						fill="transparent"
 						stroke={GLOBAL.pluto.palette[0]}
 						strokeWidth={1.6}
 						d="m 49.999999,18.000333 c -2.615773,0 -6.595655,6.9891 -9.105469,7.58446 -2.509814,0.595361 -10.534824,-3.545989 -12.735351,-2.403501 -2.200527,1.142489 -0.871019,8.76131 -2.583985,10.358369 -1.712966,1.597057 -11.235635,1.617327 -12.322266,3.539571 -1.08663,1.922246 5.130076,7.750701 4.757813,9.842403 -0.372263,2.091701 -8.37031,6.269074 -7.998047,8.360776 0.372263,2.091702 9.502725,4.278811 10.589355,6.201056 1.086631,1.922245 -2.84529,8.929353 -1.132324,10.526411 1.712966,1.59706 10.857091,-0.550783 13.057618,0.591705 2.200527,1.142488 3.581006,8.75474 6.09082,9.350104 2.509814,0.595359 8.766064,-5.204627 11.381836,-5.204627 2.615771,0 8.872021,5.799986 11.381836,5.204627 2.509814,-0.595364 3.891757,-8.207616 6.092285,-9.350104 2.200527,-1.142488 11.344651,1.005355 13.057617,-0.591705 1.712966,-1.597058 -2.218955,-8.604166 -1.132324,-10.526411 1.08663,-1.922245 10.215627,-4.109355 10.587891,-6.201056 0.372262,-2.091702 -7.62432,-6.269074 -7.996583,-8.360776 -0.372262,-2.091702 5.844443,-7.920158 4.757813,-9.842403 -1.086631,-1.922245 -10.610765,-1.942514 -12.32373,-3.539571 -1.712966,-1.597059 -0.381993,-9.21588 -2.58252,-10.358369 -2.200526,-1.142488 -10.227002,2.998862 -12.736817,2.403501 -2.509813,-0.595359 -6.489697,-7.58446 -9.105468,-7.58446 z"
 					/>
 				</Svg>
 
-				<Text style={{
-					textAlign: "center",
-					fontFamily: "Trickster-Reg-Semi",
-					fontSize: 0.65 * GLOBAL.ui.bodyTextSize,
-					lineHeight: 0.7 * GLOBAL.ui.bodyTextSize,
-					color: GLOBAL.pluto.palette[0],
-				}}>Lite{"\n"}Version</Text>
+				<Text style={[
+					{
+						textAlign: "center",
+						fontFamily: "Trickster-Reg-Semi",
+						fontSize: 0.65 * GLOBAL.ui.bodyTextSize,
+						lineHeight: 0.7 * GLOBAL.ui.bodyTextSize,
+						color: GLOBAL.pluto.palette[0],
+					},
+					GLOBAL.ui.btnShadowStyle(),
+				]}>Lite{"\n"}Version</Text>
 			</View>
 
 			{(IsSaveLoaded) && <BodyRotator body={GLOBAL.pluto} />}
