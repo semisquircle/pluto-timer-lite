@@ -14,9 +14,9 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Path, Svg } from "react-native-svg";
 
 
+//* Reanimated
 const ReanimatedSafeAreaView = Reanimated.createAnimatedComponent(SafeAreaView);
 const ReanimatedPath = Reanimated.createAnimatedComponent(Path);
-const ReanimatedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
 
 
 //* Tabs
@@ -430,16 +430,20 @@ export default function Layout() {
 							</Svg>
 
 							{/* Tab aero states */}
-							<ReanimatedExpoImage
-								style={[styles.tabImg, tabUnpressedImgAnimStyle]}
-								source={tab.unpressedSrc}
-								contentFit="fill"
-							/>
-							<ReanimatedExpoImage
-								style={[styles.tabImg, tabPressedImgAnimStyle]}
-								source={tab.pressedSrc}
-								contentFit="fill"
-							/>
+							<Reanimated.View style={[styles.tabImg, tabUnpressedImgAnimStyle]}>
+								<ExpoImage
+									style={{ width: "100%", height: "100%" }}
+									source={tab.unpressedSrc}
+									contentFit="fill"
+								/>
+							</Reanimated.View>
+							<Reanimated.View style={[styles.tabImg, tabPressedImgAnimStyle]}>
+								<ExpoImage
+									style={{ width: "100%", height: "100%" }}
+									source={tab.pressedSrc}
+									contentFit="fill"
+								/>
+							</Reanimated.View>
 
 							{/* Tab icons */}
 							<Svg

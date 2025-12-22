@@ -8,11 +8,8 @@ import Reanimated, { Easing, interpolate, useAnimatedStyle, useSharedValue, with
 import { Defs, Path, Svg, Text as SvgText, TextPath, TSpan } from "react-native-svg";
 
 
-const ReaniamtedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
-
 export default function HomeScreen() {
 	//* App storage
-	const IsSaveLoaded = GLOBAL.useSaveStore(state => state.isSaveLoaded);
 	const ActiveCity = GLOBAL.useSaveStore(state => state.activeCity);
 	const YouAreHere = GLOBAL.useSaveStore(state => state.youAreHere);
 	const IsFormat24Hour = GLOBAL.useSaveStore(state => state.isFormat24Hour);
@@ -274,10 +271,12 @@ export default function HomeScreen() {
 	//* Components
 	return (
 		<View style={styles.content}>
-			<ReaniamtedExpoImage
-				style={[styles.stars, starsAnimStyle]}
-				source={require("../assets/images/stars.png")}
-			/>
+			<Reanimated.View style={[styles.stars, starsAnimStyle]}>
+				<ExpoImage
+					style={{ width: "100%", height: "100%" }}
+					source={require("../assets/images/stars-combined-compressed.png")}
+				/>
+			</Reanimated.View>
 
 			<View
 				style={[
@@ -320,13 +319,14 @@ export default function HomeScreen() {
 				]}>Lite{"\n"}Version</Text>
 			</View>
 
-			{(IsSaveLoaded) && <BodyRotator body={GLOBAL.pluto} />}
+			<BodyRotator body={GLOBAL.pluto} />
 
-			<ReaniamtedExpoImage
-				style={[styles.finger, fingerAnimStyle]}
-				source={require("../assets/images/finger.png")}
-				pointerEvents="none"
-			/>
+			<Reanimated.View style={[styles.finger, fingerAnimStyle]} pointerEvents="none">
+				<ExpoImage
+					style={{ width: "100%", height: "100%" }}
+					source={require("../assets/images/finger.png")}
+				/>
+			</Reanimated.View>
 
 			<View style={styles.bodyTimeTextContainer}>
 				<Reanimated.View

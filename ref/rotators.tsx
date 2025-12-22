@@ -8,8 +8,6 @@ import { withPause } from "react-native-redash";
 import { Ellipse, Svg } from "react-native-svg";
 
 
-const ReaniamtedExpoImage = Reanimated.createAnimatedComponent(ExpoImage);
-
 const bodyFrameWidth = 20;
 const bodyFrameHeight = 20;
 const totalBodyFrames = bodyFrameWidth * bodyFrameHeight;
@@ -135,7 +133,7 @@ export const BodyRotator = (props: BodyRotatorType) => {
 			)}
 
 			{(isPlaceholderImgDisplayed) && (
-				<ReaniamtedExpoImage
+				<Reanimated.View //? Don't you dare make this ReanimatedExpoImage
 					style={[
 						{
 							position: "absolute",
@@ -144,12 +142,17 @@ export const BodyRotator = (props: BodyRotatorType) => {
 						},
 						bodyAnimStyle
 					]}
-					source={props.body.spriteSheet}
 					pointerEvents="none"
-					contentFit="fill"
-					cachePolicy="memory"
-					onDisplay={() => setIsSpriteSheetDisplayed(true)}
-				/>
+				>
+					<ExpoImage
+						style={{ width: "100%", height: "100%" }}
+						source={props.body.spriteSheet}
+						pointerEvents="none"
+						contentFit="fill"
+						cachePolicy="memory"
+						onDisplay={() => setIsSpriteSheetDisplayed(true)}
+					/>
+				</Reanimated.View>
 			)}
 		</View>
 	);
