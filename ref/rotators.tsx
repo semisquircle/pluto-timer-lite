@@ -127,7 +127,7 @@ export const BodyRotator = (props: BodyRotatorType) => {
 					}}
 					source={props.body.thumbnail}
 					pointerEvents="none"
-					cachePolicy="disk"
+					cachePolicy="memory"
 					onDisplay={() => setIsPlaceholderImgDisplayed(true)}
 				/>
 			)}
@@ -149,7 +149,7 @@ export const BodyRotator = (props: BodyRotatorType) => {
 						source={props.body.spriteSheet}
 						pointerEvents="none"
 						contentFit="fill"
-						cachePolicy="memory"
+						cachePolicy="none"
 						onDisplay={() => setIsSpriteSheetDisplayed(true)}
 					/>
 				</Reanimated.View>

@@ -1,5 +1,4 @@
 import * as Application from "expo-application";
-import * as Battery from "expo-battery";
 import { Directory, File, Paths } from "expo-file-system";
 import * as ExpoLocation from "expo-location";
 import * as Notifications from "expo-notifications";
@@ -240,7 +239,7 @@ export class City {
 		const start = new Date(now.getTime() - bodyTimeLength);
 		this.nextBodyTimes = this.getNextBodyTimes(start);
 		// this.nextBodyTimes = this.getNextTestTimes(start);
-		console.log(`Calculated times for ${this.name}.`);
+		// console.log(`Calculated times for ${this.name}.`);
 	}
 
 	get12HourClockTime() {
@@ -384,10 +383,7 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 	geolocate: async () => {
 		const { granted: locGranted } = await ExpoLocation.getForegroundPermissionsAsync();
 		if (locGranted) {
-			const batteryLevel = await Battery.getBatteryLevelAsync();
-			const locAccuracy = (batteryLevel > 0.2) ? ExpoLocation.Accuracy.Balanced : ExpoLocation.Accuracy.Lowest;
-			
-			const position = await ExpoLocation.getCurrentPositionAsync({ accuracy: locAccuracy });
+			const position = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Lowest });
 			const lat = position.coords.latitude;
 			const lon = position.coords.longitude;
 			// const lat = 42.15032;
