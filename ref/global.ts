@@ -78,62 +78,76 @@ export interface TimeFont {
 
 //* UI
 export const ui = {
-	palette: ["#ffffff", "#000000", "#ff453a"],
-	timeFonts: FontPrefs as TimeFont[],
-	get bodyTextSize() {
-		return 0.055 * slot.width;
+	palette: ["#ffffff", "#000000", "#0008", "#ff453a"],
+	bodyFont: "trickster_reg_semi",
+	bodyTextStyle(fontSize: number) {
+		return {
+			fontFamily: this.bodyFont,
+			fontSize: fontSize,
+			lineHeight: 1.3 * fontSize,
+		}
 	},
+	timeFonts: FontPrefs as TimeFont[],
+	get bodyTextSize() { return 0.055 * slot.width; },
 	skewAngle: -10,
-	get skewStyle() {
+	skewStyle(direction=1) {
 		return Platform.select({
 			ios: {
-				transform: [{skewY: `${this.skewAngle}deg`}]
+				transform: [{skewY: `${direction * this.skewAngle}deg`}]
 			},
 			android: {
 				transform: [
 					{perspective: 82100},
-					{rotateX: "25deg"},
+					{rotateX: `${direction * 25}deg`},
 					{rotateY: "-25deg"},
 					{scale: 1.1},
 				],
 			},
 		});
 	},
-	get antiSkewStyle() {
-		return Platform.select({
-			ios: {
-				transform: [{skewY: `${-this.skewAngle}deg`}]
-			},
-			android: {
-				transform: [
-					{perspective: 82100},
-					{rotateX: "-25deg"},
-					{rotateY: "25deg"},
-					{scale: 1.1},
-				],
-			},
-		});
-	},
-	get inputBorderWidth() {
-		return 0.005 * slot.width;
-	},
-	btnShadowStyle(direction="down", color="black") {
+	get inputBorderWidth() { return 0.005 * slot.width; },
+	textShadowStyle(direction="down", color="black") {
 		let offset = 0;
 		switch (direction) {
 			case "up": offset = -1; break;
 			case "middle": offset = 0; break;
 			case "down": offset = 1; break;
 		}
-
-		return {
-			shadowColor: color,
-			shadowOffset: {
-				width: 0,
-				height: offset * this.inputBorderWidth
-			},
-			shadowRadius: this.inputBorderWidth,
-			shadowOpacity: 0.5,
+		return Platform.select({
+			ios: {
+				shadowColor: color,
+				shadowOffset: {
+					width: 0,
+					height: offset * this.inputBorderWidth
+				},
+				shadowRadius: this.inputBorderWidth,
+				shadowOpacity: 0.5,
+			}
+		});
+	},
+	boxShadowStyle(direction="down", color="black") {
+		let offset = 0;
+		switch (direction) {
+			case "up": offset = -1; break;
+			case "middle": offset = 0; break;
+			case "down": offset = 1; break;
 		}
+		return Platform.select({
+			ios: {
+				shadowColor: color,
+				shadowOffset: {
+					width: 0,
+					height: offset * this.inputBorderWidth
+				},
+				shadowRadius: this.inputBorderWidth,
+				shadowOpacity: 0.5,
+			},
+			android: {
+				shadowColor: color,
+				shadowOpacity: 1,
+				elevation: 2,
+			}
+		});
 	},
 	animDuration: 0.2,
 	btnAnimDuration: 0.1,
@@ -153,27 +167,15 @@ export const screen = {
 
 export const nav = {
 	ratio: 0.45,
-	get height() {
-		return this.ratio * slot.width;
-	},
-	get thickness() {
-		return (20 / (this.ratio * 100)) * this.height;
-	},
+	get height() { return this.ratio * slot.width; },
+	get thickness() { return (20 / (this.ratio * 100)) * this.height; },
 };
 
 export const slot = {
-	get width() {
-		return screen.width - 2 * screen.horizOffset;
-	},
-	get height() {
-		return screen.height - screen.topOffset - screen.bottomOffset - nav.thickness;
-	},
-	get ellipseSemiMajor() {
-		return this.width / 2;
-	},
-	get ellipseSemiMinor() {
-		return this.ellipseSemiMajor / 2;
-	},
+	get width() { return screen.width - 2 * screen.horizOffset; },
+	get height() { return screen.height - screen.topOffset - screen.bottomOffset - nav.thickness; },
+	get ellipseSemiMajor() { return this.width / 2; },
+	get ellipseSemiMinor() { return this.ellipseSemiMajor / 2; },
 	borderRadius: 30,
 	shadowRadius: 35,
 };
@@ -184,6 +186,7 @@ const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
 const ONE_DAY = 24 * ONE_HOUR;
 export const bodyTimeLength = 5 * 60 * 1000;
+// export const bodyTimeLength = 0.5 * 60 * 1000;
 const numBodyTimes = 60;
 
 export class City {
@@ -413,7 +416,17 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 	},
 	scheduleNotifs: async () => {
 		const { granted: notifsGranted } = await Notifications.getPermissionsAsync();
-		if (notifsGranted) {			
+		if (notifsGranted) {	
+			if (Platform.OS == "android") {
+				await Notifications.setNotificationChannelAsync("default", {
+					name: "default",
+					importance: Notifications.AndroidImportance.HIGH,
+					lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+					showBadge: false,
+					lightColor: pluto.palette[1],
+				});
+			}
+			
 			const activeCity = get().activeCity;
 			const youAreHere = get().youAreHere;
 			const notifFreqs = get().notifFreqs;
@@ -431,10 +444,12 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 									`The sunlight in ${activeCity.name} now matches high noon on Pluto.` :
 									"Step outside – the sunlight around you now matches high noon on Pluto.",
 								interruptionLevel: "critical",
+								priority: Notifications.AndroidNotificationPriority.HIGH,
 							},
 							trigger: {
 								type: Notifications.SchedulableTriggerInputTypes.DATE,
 								date: nextBodyTime,
+								channelId: "default",
 							},
 						});
 						numScheduled++;

@@ -35,22 +35,35 @@ yarn-error.*
 *.tsbuildinfo
 
 #* Semi
-ios/
-android/
-python/
-builds/
-crashes/
-assets/svgs
-**/uncompressed
 **/*.txt
 **/*.html
 **/*.kra
 **/*.sh
 
-assets/images/app-icon/*
-!assets/images/app-icon/icon.png
-!assets/images/app-icon/icon-full.png
-!assets/images/app-icon/favicon.png
+/ios/
+/android/
+/python/
+/builds/
+/crashes/
 
-assets/images/upgrade/*
-!assets/images/upgrade/upgrade-shear.jpg
+/assets/svgs/
+/assets/images/screenshots/
+
+uncompressed/
+
+/assets/fonts/hades/*
+!/assets/fonts/hades/hades_tall_fat.ttf
+!/assets/fonts/hades/hades_short_fat.ttf
+!/assets/fonts/hades/hades_super_short_fat.ttf
+!/assets/fonts/hades/hades_short_skinny.ttf
+
+/assets/images/upgrade/*
+!/assets/images/upgrade/upgrade-shear.jpg
+
+/assets/images/app-icon/ios/*
+!/assets/images/app-icon/ios/icon-full.png
+/assets/images/app-icon/android/*
+!/assets/images/app-icon/android/background.png
+!/assets/images/app-icon/android/foreground.png
+!/assets/images/app-icon/android/monochrome.png
+!/assets/images/app-icon/android/notification.png

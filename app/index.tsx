@@ -209,20 +209,13 @@ export default function HomeScreen() {
 		nextText: {
 			width: "100%",
 			textAlign: "center",
-			fontFamily: "Trickster-Reg-Semi",
-			fontSize: GLOBAL.ui.bodyTextSize,
 			color: GLOBAL.ui.palette[0],
-		},
-
-		bodyTimeName: {
-			fontFamily: "Trickster-Reg-Semi",
-			color: bodyTextColor,
 		},
 
 		nextBodyTime: {
 			width: "100%",
 			textAlign: "center",
-			fontFamily: "Hades " + nextBodyTimeFont.name,
+			fontFamily: "hades_" + nextBodyTimeFont.name,
 			fontSize: nextBodyTimeFontSize,
 			marginVertical: GLOBAL.screen.horizOffset,
 			color: GLOBAL.ui.palette[0],
@@ -239,7 +232,7 @@ export default function HomeScreen() {
 		now: {
 			width: "100%",
 			textAlign: "center",
-			fontFamily: "Hades " + nowFont.name,
+			fontFamily: "hades_" + nowFont.name,
 			fontSize: nowFontSize,
 			marginVertical: GLOBAL.screen.horizOffset,
 			color: GLOBAL.ui.palette[0],
@@ -248,16 +241,9 @@ export default function HomeScreen() {
 		dateText: {
 			width: "100%",
 			textAlign: "center",
-			fontFamily: "Trickster-Reg-Semi",
-			fontSize: GLOBAL.ui.bodyTextSize,
 			marginTop: -0.15 * GLOBAL.ui.bodyTextSize,
 			paddingBottom: 0.3 * GLOBAL.ui.bodyTextSize,
 			color: GLOBAL.ui.palette[0],
-		},
-
-		nextBodyDate: {
-			fontFamily: "Trickster-Reg-Semi",
-			color: bodyTextColor,
 		},
 
 		cityTextContainer: {
@@ -288,9 +274,9 @@ export default function HomeScreen() {
 						alignItems: "center",
 						width: 0.27 * GLOBAL.slot.width,
 						height: 0.27 * GLOBAL.slot.width,
-						transform: [{ rotate: "-10deg" }],
+						transform: [{ rotate: `${GLOBAL.ui.skewAngle}deg` }],
 					},
-					GLOBAL.ui.btnShadowStyle(),
+					GLOBAL.ui.textShadowStyle(),
 				]}
 			>
 				<Svg
@@ -308,18 +294,18 @@ export default function HomeScreen() {
 				</Svg>
 
 				<Text style={[
-					{
-						textAlign: "center",
-						fontFamily: "Trickster-Reg-Semi",
-						fontSize: 0.65 * GLOBAL.ui.bodyTextSize,
-						lineHeight: 0.7 * GLOBAL.ui.bodyTextSize,
-						color: GLOBAL.pluto.palette[0],
-					},
-					GLOBAL.ui.btnShadowStyle(),
-				]}>Lite{"\n"}Version</Text>
+					{ textAlign: "center", color: GLOBAL.pluto.palette[0] },
+					GLOBAL.ui.bodyTextStyle(0.65 * GLOBAL.ui.bodyTextSize),
+					GLOBAL.ui.textShadowStyle(),
+				]}>Lite</Text>
+				<Text style={[
+					{ textAlign: "center", marginTop: -0.13 * GLOBAL.ui.bodyTextSize, color: GLOBAL.pluto.palette[0] },
+					GLOBAL.ui.bodyTextStyle(0.65 * GLOBAL.ui.bodyTextSize),
+					GLOBAL.ui.textShadowStyle(),
+				]}>Version</Text>
 			</View>
 
-			<BodyRotator body={GLOBAL.pluto} />
+			<BodyRotator body={GLOBAL.pluto} forcePause={false} />
 
 			<Reanimated.View style={[styles.finger, fingerAnimStyle]} pointerEvents="none">
 				<ExpoImage
@@ -330,34 +316,34 @@ export default function HomeScreen() {
 
 			<View style={styles.bodyTimeTextContainer}>
 				<Reanimated.View
-					style={[styles.nextBodyTimeContainer, GLOBAL.ui.skewStyle, nextBodyTimeAnimStyle]}
+					style={[styles.nextBodyTimeContainer, GLOBAL.ui.skewStyle(), nextBodyTimeAnimStyle]}
 					pointerEvents="none"
 				>
-					<Text style={styles.nextText}>
+					<Text style={[styles.nextText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]}>
 						{"Your next "}
-						<Text style={styles.bodyTimeName}>Pluto Time</Text>
+						<Text style={{ color: bodyTextColor }}>Pluto Time</Text>
 						{" will occur at"}
 					</Text>
 					<Text style={styles.nextBodyTime} numberOfLines={1}>{nextBodyTime}</Text>
-					<Text style={styles.dateText}>
-						on <Text style={styles.nextBodyDate}>{nextBodyDate}</Text>
+					<Text style={[styles.dateText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]}>
+						on <Text style={{ color: bodyTextColor }}>{nextBodyDate}</Text>
 					</Text>
 				</Reanimated.View>
 
 				<Reanimated.View
-					style={[styles.nowContainer, GLOBAL.ui.skewStyle, GLOBAL.ui.btnShadowStyle(), nowAnimStyle]}
+					style={[styles.nowContainer, GLOBAL.ui.skewStyle(), GLOBAL.ui.textShadowStyle(), nowAnimStyle]}
 					pointerEvents="none"
 				>
-					<Text style={[styles.nextText, { fontSize: 1.5 * GLOBAL.ui.bodyTextSize }]}>
+					<Text style={[styles.nextText, GLOBAL.ui.bodyTextStyle(2.5 * GLOBAL.ui.bodyTextSize)]}>
 						{"It's "}
-						<Text style={styles.bodyTimeName}>Pluto Time</Text>
+						<Text style={{ color: bodyTextColor }}>Pluto Time</Text>
 					</Text>
 					<Text style={styles.now} numberOfLines={1}>NOW!</Text>
 				</Reanimated.View>
 			</View>
 
 			{/* Curved city text */}
-			<View style={[styles.cityTextContainer, GLOBAL.ui.btnShadowStyle()]} pointerEvents="none">
+			<View style={[styles.cityTextContainer, GLOBAL.ui.textShadowStyle()]} pointerEvents="none">
 				<Svg
 					width={GLOBAL.slot.width}
 					height={GLOBAL.slot.height}
@@ -381,7 +367,7 @@ export default function HomeScreen() {
 						<SvgText
 							key={`cur-loc-${youAreHereTextOffset}`} //? Forces text update on location change
 							fill={youAreHereColor}
-							fontFamily="Trickster-Reg-Semi"
+							fontFamily={GLOBAL.ui.bodyFont}
 							fontSize={youAreHereTextSize}
 							letterSpacing="0.5"
 							textAnchor="middle"
@@ -394,7 +380,7 @@ export default function HomeScreen() {
 
 					<SvgText
 						fill={activeCityColor}
-						fontFamily="Trickster-Reg-Semi"
+						fontFamily={GLOBAL.ui.bodyFont}
 						fontSize={locationNameTextSize}
 						letterSpacing="1"
 						textAnchor="middle"

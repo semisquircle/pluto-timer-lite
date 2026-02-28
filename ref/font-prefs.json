@@ -1,6 +1,6 @@
 [
 	{
-		"name": "TallFat",
+		"name": "tall_fat",
 		"spacing": 1,
 		"glyph_height": 57.5,
 		"glyph_widths": [
@@ -27,7 +27,7 @@
 		]
 	},
 	{
-		"name": "ShortFat",
+		"name": "short_fat",
 		"spacing": 1,
 		"glyph_height": 44.5,
 		"glyph_widths": [
@@ -54,7 +54,7 @@
 		]
 	},
 	{
-		"name": "SuperShortFat",
+		"name": "super_short_fat",
 		"spacing": 1,
 		"glyph_height": 31.5,
 		"glyph_widths": [
@@ -81,7 +81,7 @@
 		]
 	},
 	{
-		"name": "ShortSkinny",
+		"name": "short_skinny",
 		"spacing": 1.5,
 		"glyph_height": 51.5,
 		"glyph_widths": [

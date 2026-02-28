@@ -1,8 +1,8 @@
 import * as GLOBAL from "@/ref/global";
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import Reanimated, { Easing, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { Circle, ClipPath, Defs, Ellipse, LinearGradient, Path, RadialGradient, Rect, Stop, Svg } from "react-native-svg";
+import { ClipPath, Defs, LinearGradient, Path, RadialGradient, Rect, Stop, Svg } from "react-native-svg";
 
 
 const ReanimatedPressable = Reanimated.createAnimatedComponent(Pressable);
@@ -53,8 +53,8 @@ export const RectBtn = (props: RectBtnProps) => {
 					borderRadius: props.borderRadius,
 				},
 				props.style,
-				(!props.isPressed) && GLOBAL.ui.btnShadowStyle(),
-				animStyle
+				(!props.isPressed) && GLOBAL.ui.boxShadowStyle(),
+				animStyle,
 			]}
 			onPressIn={props.onPressIn}
 			onPress={props.onPress}
@@ -123,311 +123,29 @@ export const RectBtn = (props: RectBtnProps) => {
 				/>
 			</Svg>
 
-			<View style={[{ position: "absolute", }, GLOBAL.ui.btnShadowStyle()]}>
-				<Text style={{
-					fontFamily: "Trickster-Reg-Semi",
-					fontSize: GLOBAL.ui.bodyTextSize,
-					color: GLOBAL.ui.palette[0],
-				}}>
-					{ props.text }
-				</Text>
-			</View>
+			{Array.from({ length: (Platform.OS == "android") ? 2 : 1 }).map((_, i) => (
+				<View
+					key={`btn-text${i}`}
+					style={[
+						{ position: "absolute" },
+						(i == 0 && Platform.OS == "android") && {
+							marginTop: 2 * GLOBAL.ui.inputBorderWidth,
+							filter: [{ blur: 2 }],
+						}
+					]}
+				>
+					<Text style={[
+						{
+							...GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
+							color: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : GLOBAL.ui.palette[0],
+						},
+						GLOBAL.ui.textShadowStyle()
+					]}>
+						{props.text}
+					</Text>
+				</View>
+			))}
 		</ReanimatedPressable>
-	);
-}
-
-
-type CircleBtnProps = {
-	style?: any;
-	dimension: number;
-	isPressed: boolean;
-	color: any;
-	pressedColor: any;
-	onPressIn: () => void;
-	onPress: () => void;
-	onPressOut: () => void;
-	children?: React.ReactNode;
-}
-export const CircleBtn = (props: CircleBtnProps) => {
-	const pressProgress = useSharedValue(0);
-	useEffect(() => {
-		pressProgress.value = withTiming(
-			(props.isPressed) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
-		);
-	}, [props.isPressed]);
-	const animStyle = useAnimatedStyle(() => {
-		return {
-			backgroundColor: interpolateColor(
-				pressProgress.value,
-				[0, 1],
-				[props.color, props.pressedColor]
-			)
-		}
-	});
-
-	return (
-		<ReanimatedPressable
-			style={[
-				{
-					position: "relative",
-					justifyContent: "center",
-					alignItems: "center",
-					width: props.dimension,
-					height: props.dimension,
-					borderRadius: "50%",
-				},
-				props.style,
-				(!props.isPressed) && GLOBAL.ui.btnShadowStyle(),
-				animStyle
-			]}
-			onPressIn={props.onPressIn}
-			onPress={props.onPress}
-			onPressOut={props.onPressOut}
-		>
-			<Svg
-				style={{ position: "absolute" }}
-				width="100%"
-				height="100%"
-				viewBox={`0 0 ${props.dimension} ${props.dimension}`}
-			>
-				<Defs>
-					<LinearGradient id="top-blob" x1="0%" x2="0" y1="0%" y2="100%">
-						<Stop offset="0%" stopColor="white" stopOpacity="0.7" />
-						<Stop offset="100%" stopColor="white" stopOpacity="0" />
-					</LinearGradient>
-
-					<RadialGradient id="bottom-blob" cx="50%" cy="100%" r="100%" fx="50%" fy="100%"
-						gradientTransform={`matrix(0.5, 0, 0, 1, ${0.25 * props.dimension}, 0)`}
-					>
-						<Stop offset="0%" stopColor="white" stopOpacity="0.7" />
-						<Stop offset="100%" stopColor="white" stopOpacity="0" />
-					</RadialGradient>
-
-					<ClipPath id="inner-clip">
-						<Circle
-							r={(props.dimension / 2) - GLOBAL.ui.inputBorderWidth}
-							cx={props.dimension / 2}
-							cy={props.dimension / 2}
-						/>
-					</ClipPath>
-
-					<ClipPath id="outer-clip">
-						<Circle
-							r={props.dimension / 2}
-							cx={props.dimension / 2}
-							cy={props.dimension / 2}
-						/>
-					</ClipPath>
-				</Defs>
-
-				<Circle
-					fill="url(#bottom-blob)"
-					r={(props.dimension / 2) - GLOBAL.ui.inputBorderWidth}
-					cx={props.dimension / 2}
-					cy={props.dimension / 2}
-					clipPath="url(#inner-clip)"
-				/>
-
-				<Ellipse
-					fill="url(#top-blob)"
-					rx={0.8 * ((props.dimension / 2) - GLOBAL.ui.inputBorderWidth)}
-					ry={((props.dimension / 2) - GLOBAL.ui.inputBorderWidth) / 2}
-					cx={props.dimension / 2}
-					cy={GLOBAL.ui.inputBorderWidth + ((props.dimension / 2) - GLOBAL.ui.inputBorderWidth) / 2}
-					clipPath="url(#inner-clip)"
-				/>
-
-				<Circle
-					fill="transparent"
-					stroke="black"
-					strokeWidth={2 * GLOBAL.ui.inputBorderWidth}
-					opacity="0.25"
-					r={props.dimension / 2}
-					cx={props.dimension / 2}
-					cy={props.dimension / 2}
-					clipPath="url(#outer-clip)"
-				/>
-			</Svg>
-
-			{props.children}
-		</ReanimatedPressable>
-	);
-}
-
-
-type SemiEllipseBtnProps = {
-	style?: any;
-	text: string;
-	disabledText: string;
-	width: number;
-	height: number;
-	borderRadius: number;
-	semiMinor: number;
-	disabled: boolean | undefined;
-	isPressed: boolean;
-	color: any;
-	pressedColor: any;
-	disabledColor: any;
-	onPressIn: () => void;
-	onPress: () => void;
-	onPressOut: () => void;
-}
-export const SemiEllipseBtn = (props: SemiEllipseBtnProps) => {
-	const pressProgress = useSharedValue(0);
-	useEffect(() => {
-		pressProgress.value = withTiming(
-			(props.isPressed) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
-		);
-	}, [props.isPressed]);
-	const animProps = useAnimatedProps(() => {
-		return {
-			fill: interpolateColor(
-				pressProgress.value,
-				[0, 1],
-				[props.color || "transparent", props.pressedColor || "transparent"]
-			)
-		}
-	});
-
-	return (
-		<View style={[
-			{
-				justifyContent: "center",
-				alignItems: "center",
-				width: props.width,
-				height: props.height,
-				// backgroundColor: "yellow",
-			},
-			props.style,
-		]}>
-			<Svg
-				style={[
-					{
-						position: "absolute",
-						width: props.width,
-						height: props.height,
-					},
-					(!props.disabled && !props.isPressed) && GLOBAL.ui.btnShadowStyle(),
-				]}
-				width="100%"
-				height="100%"
-				viewBox={`0 0 ${props.width} ${props.height}`}
-			>
-				<Defs>
-					<LinearGradient id="top-blob" x1="0%" x2="0" y1="0%" y2="100%">
-						<Stop offset="0%" stopColor="white" stopOpacity="0.7" />
-						<Stop offset="100%" stopColor="white" stopOpacity="0" />
-					</LinearGradient>
-
-					<RadialGradient id="bottom-blob" cx="50%" cy="100%" r="100%" fx="50%" fy="100%"
-						gradientTransform={`matrix(0.5, 0, 0, 1, ${0.25 * (props.width - (2 * GLOBAL.ui.inputBorderWidth))}, 0)`}
-					>
-						<Stop offset="0%" stopColor="white" stopOpacity="0.7" />
-						<Stop offset="100%" stopColor="white" stopOpacity="0" />
-					</RadialGradient>
-
-					<LinearGradient id="stroke" x1="0%" x2="0" y1="0%" y2="100%">
-						<Stop offset="0%" stopColor={(props.disabled) ? props.disabledColor : "black"} stopOpacity={(props.disabled) ? "1" : "0"} />
-						<Stop offset="100%" stopColor={(props.disabled) ? props.disabledColor : "black"} stopOpacity={(props.disabled) ? "1" : "0.7"} />
-					</LinearGradient>
-
-					<ClipPath id="btn-clip">
-						<Path
-							fill="transparent"
-							d={`
-								M 0,${props.borderRadius}
-								v ${props.height - props.borderRadius - props.semiMinor}
-								A ${props.width / 2} ${props.semiMinor}
-									0 0 0 ${props.width},${props.height - props.semiMinor}
-								v ${-(props.height - props.borderRadius - props.semiMinor)}
-								q 0,${-props.borderRadius} ${-props.borderRadius},${-props.borderRadius}
-								h ${-(props.width - (2 * props.borderRadius))}
-								q ${-props.borderRadius},0 ${-props.borderRadius},${props.borderRadius}
-								z
-							`}
-						/>
-					</ClipPath>
-				</Defs>
-
-				{(!props.disabled) &&
-					<ReanimatedPath
-						animatedProps={animProps}
-						d={`
-							M 0,${props.borderRadius}
-							v ${props.height - props.borderRadius - props.semiMinor}
-							A ${props.width / 2} ${props.semiMinor}
-								0 0 0 ${props.width},${props.height - props.semiMinor}
-							v ${-(props.height - props.borderRadius - props.semiMinor)}
-							q 0,${-props.borderRadius} ${-props.borderRadius},${-props.borderRadius}
-							h ${-(props.width - (2 * props.borderRadius))}
-							q ${-props.borderRadius},0 ${-props.borderRadius},${props.borderRadius}
-							z
-						`}
-					/>
-				}
-
-				<Path
-					fill="url(#bottom-blob)"
-					stroke="url(#stroke)"
-					strokeWidth={2 * GLOBAL.ui.inputBorderWidth}
-					d={`
-						M 0,${props.borderRadius}
-						v ${props.height - props.borderRadius - props.semiMinor}
-						A ${props.width / 2} ${props.semiMinor}
-							0 0 0 ${props.width},${props.height - props.semiMinor}
-						v ${-(props.height - props.borderRadius - props.semiMinor)}
-						q 0,${-props.borderRadius} ${-props.borderRadius},${-props.borderRadius}
-						h ${-(props.width - (2 * props.borderRadius))}
-						q ${-props.borderRadius},0 ${-props.borderRadius},${props.borderRadius}
-						z
-					`}
-					clipPath="url(#btn-clip)"
-				/>
-
-				<Rect
-					fill="url(#top-blob)"
-					x={GLOBAL.ui.inputBorderWidth}
-					y={GLOBAL.ui.inputBorderWidth}
-					width={props.width - (2 * GLOBAL.ui.inputBorderWidth)}
-					height={2 * (props.borderRadius - 2 * GLOBAL.ui.inputBorderWidth)}
-					rx={props.borderRadius - 2 * GLOBAL.ui.inputBorderWidth}
-				/>
-
-				<Path
-					fill="transparent"
-					d={`
-						M 0,${props.borderRadius}
-						v ${props.height - props.borderRadius - props.semiMinor}
-						A ${props.width / 2} ${props.semiMinor}
-							0 0 0 ${props.width},${props.height - props.semiMinor}
-						v ${-(props.height - props.borderRadius - props.semiMinor)}
-						q 0,${-props.borderRadius} ${-props.borderRadius},${-props.borderRadius}
-						h ${-(props.width - (2 * props.borderRadius))}
-						q ${-props.borderRadius},0 ${-props.borderRadius},${props.borderRadius}
-						z
-					`}
-					onPressIn={props.onPressIn}
-					onPress={props.onPress}
-					onPressOut={props.onPressOut}
-				/>
-			</Svg>
-
-			<View style={{ position: "absolute" }} pointerEvents="none">
-				<Text style={[
-					{
-						fontFamily: "Trickster-Reg-Semi",
-						fontSize: GLOBAL.ui.bodyTextSize,
-						color: (props.disabled) ? props.disabledColor : GLOBAL.ui.palette[0],
-						marginBottom: 0.6 * GLOBAL.ui.bodyTextSize,
-					},
-					(!props.disabled) && GLOBAL.ui.btnShadowStyle()
-				]}>
-					{(props.disabled) ? props.disabledText : props.text}
-				</Text>
-			</View>
-		</View>
 	);
 }
 
@@ -568,91 +286,91 @@ export const ToggleBtn = (props: ToggleBtnProps) => {
 				/>
 			</ReanimatedSvg>
 
-			{props.optionTitles.map((option, i) => {
-				const textAnimStyle = useAnimatedStyle(() => {
-					return {
-						color: interpolateColor(
-							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
-							[0, 1],
-							[props.color, GLOBAL.ui.palette[0]]
-						)
-					}
-				});
+			{Array.from({ length: (Platform.OS == "android") ? 2 : 1 }).map((_, i) => {
+				return props.optionTitles.map((option, o) => {
+					const textAnimStyle = useAnimatedStyle(() => {
+						return {
+							color: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : interpolateColor(
+								o ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
+								[0, 1],
+								[props.color, GLOBAL.ui.palette[0]]
+							)
+						}
+					});
 
-				const iconAnimProps = useAnimatedProps(() => {
-					return {
-						fill: interpolateColor(
-							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
-							[0, 1],
-							[props.color, GLOBAL.ui.palette[0]]
-						),
-						stroke: interpolateColor(
-							i ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
-							[0, 1],
-							[props.color, GLOBAL.ui.palette[0]]
-						)
-					}
-				});
+					const iconAnimProps = useAnimatedProps(() => {
+						return {
+							fill: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : interpolateColor(
+								o ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
+								[0, 1],
+								[props.color, GLOBAL.ui.palette[0]]
+							),
+							stroke: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : interpolateColor(
+								o ? toggleBtnProgress.value : 1 - toggleBtnProgress.value,
+								[0, 1],
+								[props.color, GLOBAL.ui.palette[0]]
+							)
+						}
+					});
 
-				return (
-					<View
-						key={`time-format-option-text${i}`}
-						style={[
-							{
-								position: "absolute",
-								top: GLOBAL.ui.inputBorderWidth,
-								left: (i == 0) ? GLOBAL.ui.inputBorderWidth : toggleBtnWidth / 2,
-								flexDirection: "row",
-								justifyContent: "center",
-								alignItems: "center",
-								width: (toggleBtnWidth - (2 * GLOBAL.ui.inputBorderWidth)) / 2,
-								height: toggleBtnHeight - (2 * GLOBAL.ui.inputBorderWidth),
-							},
-							GLOBAL.ui.btnShadowStyle()
-						]}
-						pointerEvents="none"
-					>
-						{(props.optionIcons) && (
-							<Svg
-								style={{
-									marginLeft: -0.3 * toggleBtnIconDimension,
-									marginRight: -0.05 * toggleBtnIconDimension,
-								}}
-								width={toggleBtnIconDimension}
-								height={toggleBtnIconDimension}
-								viewBox="0 0 100 100"
-							>
-								<ReanimatedPath
-									animatedProps={iconAnimProps}
-									strokeWidth={2}
-									d={props.optionIcons[i]}
-								/>
-							</Svg>
-						)}
+					return (
+						<View
+							key={`toggle-option-text${o}`}
+							style={[
+								{
+									position: "absolute",
+									top: GLOBAL.ui.inputBorderWidth,
+									left: (o == 0) ? GLOBAL.ui.inputBorderWidth : toggleBtnWidth / 2,
+									flexDirection: "row",
+									justifyContent: "center",
+									alignItems: "center",
+									width: (toggleBtnWidth - (2 * GLOBAL.ui.inputBorderWidth)) / 2,
+									height: toggleBtnHeight - (2 * GLOBAL.ui.inputBorderWidth),
+									marginTop: (i == 0) ? GLOBAL.ui.inputBorderWidth : 0,
+									filter: (i == 0 && Platform.OS == "android") ? [{ blur: 2 }] : [],
+								},
+								GLOBAL.ui.textShadowStyle()
+							]}
+							pointerEvents="none"
+						>
+							{(props.optionIcons) && (
+								<Svg
+									style={{
+										marginLeft: -0.3 * toggleBtnIconDimension,
+										marginRight: -0.05 * toggleBtnIconDimension,
+									}}
+									width={toggleBtnIconDimension}
+									height={toggleBtnIconDimension}
+									viewBox="0 0 100 100"
+								>
+									<ReanimatedPath
+										animatedProps={iconAnimProps}
+										strokeWidth={2}
+										d={props.optionIcons[o]}
+									/>
+								</Svg>
+							)}
 
-						<View style={{ alignItems: (props.optionIcons) ? "flex-start" : "center" }}>
-							<Reanimated.Text
-								style={[
-									{
-										fontFamily: "Trickster-Reg-Semi",
-										fontSize: GLOBAL.ui.bodyTextSize,
-									},
-									textAnimStyle
-								]}
-							>{option.title}</Reanimated.Text>
+							<View style={{ alignItems: (props.optionIcons) ? "flex-start" : "center" }}>
+								<Reanimated.Text
+									style={[
+										GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
+										textAnimStyle
+									]}
+									numberOfLines={1}
+								>{option.title}</Reanimated.Text>
 
-							<Reanimated.Text
-								style={[
-									{
-										fontFamily: "Trickster-Reg-Semi",
-										fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
-									},
-									textAnimStyle
-								]}
-							>{option.subtitle}</Reanimated.Text>
+								<Reanimated.Text
+									style={[
+										GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
+										textAnimStyle
+									]}
+									numberOfLines={1}
+								>{option.subtitle}</Reanimated.Text>
+							</View>
 						</View>
-					</View>
-				);
+					);
+				});
 			})}
 		</Reanimated.View>
 	);

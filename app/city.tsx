@@ -7,7 +7,7 @@ import * as Haptics from "expo-haptics";
 import { Image as ExpoImage } from "expo-image";
 import * as ExpoLocation from "expo-location";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Keyboard, KeyboardEvent, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Keyboard, KeyboardEvent, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Reanimated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Path, Svg } from "react-native-svg";
 
@@ -154,16 +154,14 @@ const styles = StyleSheet.create({
 
 	title: {
 		width: "100%",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 30,
+		...GLOBAL.ui.bodyTextStyle(30),
 		marginBottom: GLOBAL.screen.horizOffset,
 		color: GLOBAL.ui.palette[0],
 	},
 
 	subtitle: {
 		width: "100%",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
 		marginBottom: GLOBAL.screen.horizOffset,
 	},
 
@@ -194,9 +192,10 @@ const styles = StyleSheet.create({
 
 	cityInput: {
 		flex: 1,
-		fontFamily: "Trickster-Reg-Semi",
+		fontFamily: GLOBAL.ui.bodyFont,
 		fontSize: GLOBAL.ui.bodyTextSize,
-		marginBottom: 0.1 * GLOBAL.ui.bodyTextSize,
+		marginBottom: (Platform.OS == "android") ? -0.15 * GLOBAL.ui.bodyTextSize : 0.1 * GLOBAL.ui.bodyTextSize,
+		padding: 0,
 		color: GLOBAL.ui.palette[0],
 	},
 
@@ -212,8 +211,7 @@ const styles = StyleSheet.create({
 	},
 
 	cityInputCancelBtnText: {
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
 		borderBottomWidth: GLOBAL.ui.inputBorderWidth / 2,
 	},
 
@@ -239,8 +237,7 @@ const styles = StyleSheet.create({
 	},
 
 	cityResultText: {
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
 		color: GLOBAL.ui.palette[0],
 	},
 
@@ -264,6 +261,7 @@ const styles = StyleSheet.create({
 	},
 
 	mapPin: {
+		position: "absolute",
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -271,11 +269,10 @@ const styles = StyleSheet.create({
 	mapPinText: {
 		flexDirection: "row",
 		textAlign: "center",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: GLOBAL.ui.bodyTextSize,
-		paddingVertical: 0.4 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
 		paddingHorizontal: 0.6 * GLOBAL.ui.bodyTextSize,
-		backgroundColor: GLOBAL.ui.palette[2],
+		paddingTop: 0.4 * GLOBAL.ui.bodyTextSize,
+		paddingBottom: 0.5 * GLOBAL.ui.bodyTextSize,
 		borderRadius: 0.5 * GLOBAL.screen.horizOffset,
 		color: GLOBAL.ui.palette[0],
 	},
@@ -283,8 +280,7 @@ const styles = StyleSheet.create({
 	latLng: {
 		width: "100%",
 		textAlign: "right",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
 		marginTop: 0.5 * GLOBAL.screen.horizOffset,
 		color: subTitleColor,
 	},
@@ -349,7 +345,7 @@ export default function CityScreen() {
 	useEffect(() => {
 		cityInputFocusProgress.value = withTiming(
 			(isCityInputFocused) ? 1 : 0,
-			{ duration: 1000 * GLOBAL.ui.animDuration / 2, easing: Easing.linear }
+			{ duration: 1000 * GLOBAL.ui.btnAnimDuration, easing: Easing.linear }
 		);
 	}, [isCityInputFocused]);
 	const [cityInputCancelBtnWidth, setCityInputCancelBtnWidth] = useState(0);
@@ -408,9 +404,9 @@ export default function CityScreen() {
 	//* Components
 	return (
 		<View style={[styles.content, { height: GLOBAL.slot.height }]}>
-			<BodyRotator body={GLOBAL.terra} />
+			<BodyRotator body={GLOBAL.terra} forcePause={!YouAreHere} />
 			
-			<View style={[styles.skewContainer, GLOBAL.ui.skewStyle]}>
+			<View style={[styles.skewContainer, GLOBAL.ui.skewStyle()]}>
 				<Text style={styles.title}>Where Are You?</Text>
 
 				<ToggleBtn
@@ -457,6 +453,7 @@ export default function CityScreen() {
 						flexDirection: "row",
 						alignItems: "center"
 					}}>
+						{/* Search bar */}
 						<ReanimatedPressable
 							style={[
 								styles.cityInputWrapper,
@@ -489,13 +486,11 @@ export default function CityScreen() {
 									setCityInputValue(newValue);
 									handleCitySearch(newValue);
 								}}
-								onSubmitEditing={() => {
-									setIsCityInputFocused(false);
-								}}
-							>
-							</TextInput>
+								onSubmitEditing={() => setIsCityInputFocused(false)}
+							/>
 						</ReanimatedPressable>
 
+						{/* Cancel button */}
 						<Reanimated.View
 							style={[styles.cityInputCancelBtnContainer, cityInputFadeAnimStyle]}
 							onLayout={(evt) => {
@@ -559,8 +554,8 @@ export default function CityScreen() {
 				</Reanimated.View>
 
 				<View style={[styles.map, { zIndex: (YouAreHere) ? 9999 : 9995 }]}>
-					<View style={[styles.mapTileContainer, GLOBAL.ui.antiSkewStyle]}>
-						{[...Array(9)].map((item, i) => {
+					<View style={[styles.mapTileContainer, GLOBAL.ui.skewStyle(-1)]}>
+						{[...Array(9)].map((_, i) => {
 							const x = baseX + (i % 3) - 1;
 							const y = baseY + Math.floor(i / 3) - 1;
 
@@ -596,25 +591,39 @@ export default function CityScreen() {
 						})}
 					</View>
 
-					<View style={[styles.mapPin, GLOBAL.ui.btnShadowStyle()]}>
-						<Text style={styles.mapPinText}>
-							{(YouAreHere) ? "¹ " : ""}
-							{(pinName.length > 25) ? pinName.replace(", ", ",\n") : pinName}
-							{/* {pinName} */}
-						</Text>
-
-						<Svg
-							style={{ marginTop: -0.5 }}
-							width={pinArrowDimension}
-							height={pinArrowDimension}
-							viewBox="0 0 100 100"
+					{Array.from({ length: (Platform.OS == "android") ? 2 : 1 }).map((_, i) => (
+						<View
+							key={`map-pin${i}`}
+							style={[
+								styles.mapPin,
+								(i == 0 && Platform.OS == "android") && {
+									transform: [{ translateY: GLOBAL.ui.inputBorderWidth }],
+									filter: [{ blur: 2 }],
+								},
+								GLOBAL.ui.textShadowStyle()
+							]}
 						>
-							<Path
-								fill={GLOBAL.ui.palette[2]}
-								d="m 0,0 33.355309,50.04028 c 7.916718,11.87419 25.365344,11.87419 33.282061,0 L 100,0 Z"
-							/>
-						</Svg>
-					</View>
+							<Text style={[
+								styles.mapPinText,
+								{ backgroundColor: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : GLOBAL.ui.palette[3] }
+							]}>
+								{(YouAreHere) ? "¹ " : ""}
+								{(pinName.length > 25) ? pinName.replace(", ", ",\n") : pinName}
+							</Text>
+
+							<Svg
+								style={{ marginTop: -0.5 }}
+								width={pinArrowDimension}
+								height={pinArrowDimension}
+								viewBox="0 0 100 100"
+							>
+								<Path
+									fill={(i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : GLOBAL.ui.palette[3]}
+									d="m 0,0 33.355309,50.04028 c 7.916718,11.87419 25.365344,11.87419 33.282061,0 L 100,0 Z"
+								/>
+							</Svg>
+						</View>
+					))}
 				</View>
 
 				<Text style={styles.latLng}>

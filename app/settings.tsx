@@ -6,7 +6,7 @@ import { Image as ExpoImage } from "expo-image";
 import * as Linking from "expo-linking";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Reanimated, { interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Circle, Defs, Path, RadialGradient, Rect, Stop, Svg, Text as SvgText, TextPath, TSpan } from "react-native-svg";
 
@@ -34,10 +34,11 @@ const rectBtnBorderRadius = GLOBAL.screen.horizOffset;
 //* Upgrade
 const upgradeImgWidth = rectBtnWidth - 2 * GLOBAL.ui.inputBorderWidth;
 const upgradeFeatures = [
-	"Over 40 other planets/moons to choose!",
+	"Explore 40+ additional planet/moon times!",
+	"Select from 160,000+ more cities!",
 	"Track multiple cities simultaneously!",
 	"Get reminded of Pluto Times before they happen!",
-	"This popup will go away...",
+	"This message won't be here...",
 ];
 
 
@@ -94,31 +95,32 @@ const styles = StyleSheet.create({
 	},
 
 	settingsScrollContainer: {
+		flex: 1,
 		width: "100%",
 		height: "100%",
 		paddingHorizontal: GLOBAL.screen.horizOffset,
 		paddingTop: GLOBAL.screen.horizOffset,
+		backgroundColor: "transparent",
 		overflow: "visible",
 	},
 
 	skewContainer: {
 		width: "100%",
+		backgroundColor: "transparent",
 	},
 
 	title: {
 		width: "100%",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 30,
+		...GLOBAL.ui.bodyTextStyle(30),
 		marginBottom: GLOBAL.screen.horizOffset,
 		color: GLOBAL.ui.palette[0],
 	},
 
 	subtitle: {
 		width: "100%",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
 		marginBottom: GLOBAL.screen.horizOffset,
-		marginTop: 2.5 * GLOBAL.screen.horizOffset
+		marginTop: 2.5 * GLOBAL.screen.horizOffset,
 	},
 
 	freqOptionContainer: {
@@ -167,23 +169,12 @@ const styles = StyleSheet.create({
 		width: "100%",
 	},
 
-	notifReminderTitle: {
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
-		color: GLOBAL.ui.palette[0],
-	},
-
 	creditContainer: {
 		width: "100%",
 		padding: 1.5 * GLOBAL.screen.horizOffset,
 		borderWidth: GLOBAL.ui.inputBorderWidth,
 		borderRadius: GLOBAL.screen.horizOffset,
 		overflow: "hidden",
-	},
-
-	creditsBracket: {
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 2.5 * GLOBAL.ui.bodyTextSize,
 	},
 
 	settingsScrollSpacer: {
@@ -248,6 +239,13 @@ export default function SettingsScreen() {
 	//* Upgrade button
 	const [isUpgradeBtnPressed, setIsUpgradeBtnPressed] = useState(false);
 	const [isUpgradeBtnActive, setIsUpgradeBtnActive] = useState(false);
+	const [upgradeURL, setUpgradeURL] = useState("");
+	useEffect(() => {
+		fetch("https://semipedia.cool/apps/pluto-timer-lite/upgrade.json")
+			.then(res => res.json())
+			.then(data => setUpgradeURL(data[Platform.OS]))
+			.catch(() => {});
+	}, []);
 
 
 	//! Permissions testing
@@ -262,11 +260,9 @@ export default function SettingsScreen() {
 				style={[styles.settingsScrollContainer]}
 				contentContainerStyle={{ alignItems: "center" }}
 				showsVerticalScrollIndicator={false}
-				onScroll={(evt) => {
-					setScrollPosition(evt.nativeEvent.contentOffset.y);
-				}}
+				onScroll={evt => setScrollPosition(evt.nativeEvent.contentOffset.y)}
 			>
-				<View style={[styles.skewContainer, GLOBAL.ui.skewStyle]}>
+				<View style={[styles.skewContainer, GLOBAL.ui.skewStyle()]}>
 					<Text style={styles.title}>Settings</Text>
 
 					<View style={{
@@ -276,13 +272,16 @@ export default function SettingsScreen() {
 						borderRadius: rectBtnBorderRadius,
 						overflow: "hidden",
 					}}>
-						<Text style={{
-							textAlign: "center",
-							fontFamily: "Trickster-Reg-Semi",
-							fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
-							paddingVertical: 0.5 * GLOBAL.ui.bodyTextSize,
-							color: inputOffColor,
-						}}>
+						<Text
+							style={{
+								width: "100%",
+								textAlign: "center",
+								...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
+								paddingVertical: 0.5 * GLOBAL.ui.bodyTextSize,
+								color: inputOffColor,
+							}}
+							numberOfLines={1}
+						>
 							² This is the free version of Pluto Timer
 						</Text>
 
@@ -300,8 +299,7 @@ export default function SettingsScreen() {
 							padding: 0.8 * GLOBAL.ui.bodyTextSize,
 						}}>
 							<Text style={{
-								fontFamily: "Trickster-Reg-Semi",
-								fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
+								...GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
 								marginBottom: 0.3 * GLOBAL.ui.bodyTextSize,
 								color: inputOffColor,
 							}}>
@@ -313,8 +311,7 @@ export default function SettingsScreen() {
 									<Text
 										key={`upgrade-feature${i}`}
 										style={{
-											fontFamily: "Trickster-Reg-Semi",
-											fontSize: 0.65 * GLOBAL.ui.bodyTextSize,
+											...GLOBAL.ui.bodyTextStyle(0.65 * GLOBAL.ui.bodyTextSize),
 											marginTop: (i > 0) ? 0.2 * GLOBAL.ui.bodyTextSize : 0,
 											color: inputOffColor,
 										}}
@@ -334,9 +331,7 @@ export default function SettingsScreen() {
 						color={btnBgColor}
 						pressedColor={GLOBAL.pluto.palette[3]}
 						onPressIn={() => setIsUpgradeBtnPressed(true)}
-						onPress={() => {
-							Linking.openURL("itms-apps://itunes.apple.com/app/id6754513496");
-						}}
+						onPress={() => Linking.openURL(upgradeURL)}
 						onPressOut={() => setIsUpgradeBtnPressed(false)}
 					/>
 
@@ -489,7 +484,7 @@ export default function SettingsScreen() {
 
 										<ReanimatedSvgText
 											animatedProps={textAnimProps}
-											fontFamily="Trickster-Reg-Semi"
+											fontFamily={GLOBAL.ui.bodyFont}
 											fontSize={freqOptionsTextSize}
 											letterSpacing="0"
 											textAnchor="middle"
@@ -501,7 +496,7 @@ export default function SettingsScreen() {
 
 										<ReanimatedSvgText
 											animatedProps={textAnimProps}
-											fontFamily="Trickster-Reg-Semi"
+											fontFamily={GLOBAL.ui.bodyFont}
 											fontSize={freqOptionsTextSize}
 											letterSpacing="0"
 											textAnchor="middle"
@@ -561,11 +556,10 @@ export default function SettingsScreen() {
 									marginTop: c > 0 ? GLOBAL.screen.horizOffset : 0,
 								}}
 							>
-								<Text style={{
-									fontFamily: "Trickster-Reg-Semi",
-									fontSize: 0.8 * GLOBAL.ui.bodyTextSize,
-									color: inputOffColor,
-								}}>{credit.name}</Text>
+								<Text style={[
+									GLOBAL.ui.bodyTextStyle(0.8 * GLOBAL.ui.bodyTextSize),
+									{ color: inputOffColor }
+								]}>{credit.name}</Text>
 
 								<View style={{
 									flex: 1,
@@ -596,10 +590,10 @@ export default function SettingsScreen() {
 											<Text
 												key={`credit${c}-job${j}`}
 												style={{
-													fontFamily: "Trickster-Reg-Semi",
-													fontSize: 0.6 * GLOBAL.ui.bodyTextSize,
+													...GLOBAL.ui.bodyTextStyle(0.6 * GLOBAL.ui.bodyTextSize),
 													color: inputOffColor,
 												}}
+												numberOfLines={1}
 											>{job}</Text>
 										))}
 									</View>

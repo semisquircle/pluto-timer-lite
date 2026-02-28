@@ -3,7 +3,7 @@ import * as Haptics from "expo-haptics";
 import { Image as ExpoImage } from "expo-image";
 import { useEffect, useState } from "react";
 import { PanResponder, View } from "react-native";
-import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Reanimated, { Easing, useAnimatedStyle, useDerivedValue, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { withPause } from "react-native-redash";
 import { Ellipse, Svg } from "react-native-svg";
 
@@ -12,7 +12,7 @@ const bodyFrameWidth = 20;
 const bodyFrameHeight = 20;
 const totalBodyFrames = bodyFrameWidth * bodyFrameHeight;
 
-type BodyRotatorType = { body: GLOBAL.CelestialBody }
+type BodyRotatorType = { body: GLOBAL.CelestialBody, forcePause: boolean }
 export const BodyRotator = (props: BodyRotatorType) => {
 	const [isPlaceholderImgDisplayed, setIsPlaceholderImgDisplayed] = useState<boolean>(false);
 	const [isSpriteSheetDisplayed, setIsSpriteSheetDisplayed] = useState<boolean>(false);
@@ -24,6 +24,7 @@ export const BodyRotator = (props: BodyRotatorType) => {
 	const dragStartX = useSharedValue(0);
 	const dragStartY = useSharedValue(0);
 	const isDraggingBody = useSharedValue(false);
+	const isPaused = useDerivedValue(() => isDraggingBody.value || props.forcePause);
 
 	useEffect(() => {
 		if (isSpriteSheetDisplayed) {
@@ -36,11 +37,11 @@ export const BodyRotator = (props: BodyRotatorType) => {
 					-1,
 					false
 				),
-				isDraggingBody
+				isPaused
 			);
 		}
 		return () => { bodyFrame.value = bodyFrame.value; }
-	}, [isSpriteSheetDisplayed, isDraggingBody]);
+	}, [isSpriteSheetDisplayed, isPaused]);
 
 	const bodyAnimStyle = useAnimatedStyle(() => {
 		const modFrame = (f: number) => ((f % totalBodyFrames) + totalBodyFrames) % totalBodyFrames;
@@ -101,7 +102,7 @@ export const BodyRotator = (props: BodyRotatorType) => {
 						position: "absolute",
 						top: (props.body.name == "Terra") ? -1 : -GLOBAL.slot.width / 2 - 1,
 					},
-					GLOBAL.ui.btnShadowStyle()
+					GLOBAL.ui.textShadowStyle()
 				]}
 				width={GLOBAL.slot.width}
 				height={GLOBAL.slot.width}

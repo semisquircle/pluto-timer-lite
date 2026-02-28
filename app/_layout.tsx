@@ -1,14 +1,13 @@
 import { RectBtn } from "@/ref/btns";
 import * as GLOBAL from "@/ref/global";
 import MaskedView from "@react-native-masked-view/masked-view";
-import * as Application from "expo-application";
 import { useFonts } from "expo-font";
 import { Image as ExpoImage } from "expo-image";
 import * as ExpoLocation from "expo-location";
 import * as Notifications from "expo-notifications";
 import { router, Slot } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import Reanimated, { Easing, interpolateColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Path, Svg } from "react-native-svg";
@@ -45,7 +44,7 @@ const tabArray: {
 	{
 		key: "index",
 		href: "/",
-		handlePath: "m 72.226066,23.942213 c -9.794274,2.393299 -19.452468,2.798319 -27.101273,2.436052 a 4.3134337,4.3134337 144.35159 0 0 -4.398139,3.154383 l -2.647644,9.883434 a 2.9339568,2.9339568 55.155073 0 0 2.579159,3.704721 c 9.899723,0.76477 27.705655,0.865307 45.001851,-5.494633 a 2.2757039,2.2757039 101.77602 0 0 0.782586,-3.753876 l -8.361287,-8.361287 a 6.1806503,6.1806503 14.998934 0 0 -5.855253,-1.568794 z",
+		handlePath: "m 72.227541,23.942251 c -9.795066,2.393542 -19.454976,2.798213 -27.102748,2.436009 a 4.3136751,4.3136751 144.35305 0 0 -4.398317,3.15434 l -2.656077,9.912827 a 2.9290328,2.9290328 55.103617 0 0 2.579585,3.698245 c 10.220417,0.776315 27.904847,0.799654 45.034648,-5.494758 a 2.2751737,2.2751737 101.78239 0 0 0.782877,-3.753183 l -8.384725,-8.384724 a 6.1806043,6.1806043 14.998611 0 0 -5.855243,-1.568756 z",
 		unpressedSrc: require("../assets/images/tabs/unpressed/2.png"),
 		pressedSrc: require("../assets/images/tabs/pressed/2.png"),
 		iconPath: GLOBAL.pluto.icon!,
@@ -57,7 +56,7 @@ const tabArray: {
 	{
 		key: "city",
 		href: "/city",
-		handlePath: "m 94.970273,12.845933 c -4.005662,3.86178 -9.304268,6.686074 -14.955624,8.750404 a 2.1874173,2.1874173 103.19659 0 0 -0.842021,3.590939 l 8.249959,8.249959 a 4.931536,4.931536 10.090219 0 0 5.651218,1.00564 c 0.804428,-0.395448 1.603862,-0.80732 2.396963,-1.236974 a 5.9240429,5.9240429 119.9826 0 0 3.02972,-5.251311 V 14.142578 a 2.0431601,2.0431601 20.16824 0 0 -3.530215,-1.296645 z",
+		handlePath: "m 94.970273,12.845934 c -4.005661,3.861782 -9.304264,6.686073 -14.955623,8.750404 a 2.1874171,2.1874171 103.1966 0 0 -0.842022,3.590938 l 8.277791,8.277791 a 4.9425678,4.9425678 10.167747 0 0 5.655195,1.014244 c 0.891311,-0.43612 1.668975,-0.843521 2.3824,-1.23781 a 5.9831759,5.9831759 119.70176 0 0 3.012474,-5.281052 V 14.142578 a 2.0431594,2.0431594 20.168234 0 0 -3.530215,-1.296644 z",
 		unpressedSrc: require("../assets/images/tabs/unpressed/3.png"),
 		pressedSrc: require("../assets/images/tabs/pressed/3.png"),
 		iconPath: "M 38.082952,12.76415 C 30.137186,19.4677 21.278333,24.582436 11.5,28.111893 c 1.832565,15.347729 1.832565,39.014061 0,54.361791 l 2.74885,4.762166 C 21.442805,81.166575 29.387296,76.403961 38.082952,72.936821 46.778316,76.403936 54.723307,81.16675 61.917053,87.23585 69.86282,80.532296 78.721672,75.417564 88.5,71.888108 86.667441,56.540378 86.667441,32.874045 88.5,17.526317 L 85.751155,12.76415 C 78.557407,18.833249 70.612417,23.596063 61.917053,27.063178 53.22169,23.596063 45.276699,18.833251 38.082952,12.76415 Z M 35.566756,69.166101 C 29.764084,73.710917 23.497821,77.449663 16.763264,80.379832 15.273819,66.657668 15.2459,44.616911 16.686313,30.894746 c 5.844468,-4.588197 12.160835,-8.357162 18.952025,-11.305003 0,0 1.422685,35.823816 -0.07158,49.576358 z m 4.960811,-49.576358 c 6.730297,2.921411 12.994087,6.64905 18.794544,11.18152 1.547095,13.781827 1.61947,35.882222 0.211174,49.664048 C 52.749474,77.496791 46.439067,73.740037 40.599152,69.166101 39.104881,55.413559 39.078994,33.342285 40.527567,19.589743 Z m 42.709177,0.02864 c 1.489572,13.722162 1.517239,35.762919 0.07695,49.485084 C 77.451671,73.705492 71.115275,77.48352 64.300818,80.435313 62.892525,66.653487 62.9649,44.553093 64.511994,30.771266 70.292579,26.254322 76.532683,22.535277 83.236743,19.61838 Z",
@@ -69,9 +68,70 @@ const tabArray: {
 ];
 
 
+//* Notifications
+// Notifications.setNotificationHandler({
+// 	handleNotification: async () => ({
+// 		shouldPlaySound: true,
+// 		shouldSetBadge: true,
+// 		shouldShowBanner: true,
+// 		shouldShowList: true,
+// 	}),
+// });
+
+
 //* Prompts
 const promptContentWidth = GLOBAL.slot.width - (2 * GLOBAL.screen.horizOffset);
 const promptBtnHeight = 80;
+
+type PromptTypes = {
+	animStyle: any;
+	title: string;
+	img: any;
+	imgColor: any;
+	subtitles: string[];
+	btn: any;
+}
+const Prompt = (props: PromptTypes) => {
+	return (
+		<ReanimatedSafeAreaView style={[styles.prompt, props.animStyle]}>
+			<View style={[styles.promptTopContainer, GLOBAL.ui.skewStyle()]}>
+				<Text style={[
+					styles.promptTitle,
+					GLOBAL.ui.textShadowStyle(),
+				]}>
+					{props.title}
+				</Text>
+
+				<View style={[
+					styles.promptImgContainer,
+					GLOBAL.ui.boxShadowStyle(),
+				]}>
+					<ExpoImage
+						style={[styles.promptImg, { backgroundColor: props.imgColor }]}
+						source={props.img}
+						contentFit="cover"
+					/>
+				</View>
+
+				{props.subtitles.map((subtitle, s) => (
+					<Text
+						key={`prompt-subtitle${s}`}
+						style={[
+							styles.promptSubtitle,
+							GLOBAL.ui.textShadowStyle(),
+						]}
+					>
+						{subtitle}
+					</Text>
+				))}
+			</View>
+
+			<View style={[styles.promptBottomContainer, GLOBAL.ui.skewStyle()]}>
+				{props.btn}
+			</View>
+		</ReanimatedSafeAreaView>
+	);
+}
 
 
 //* Stylesheet
@@ -98,26 +158,32 @@ const styles = StyleSheet.create({
 
 	promptTitle: {
 		textAlign: "center",
+		...GLOBAL.ui.bodyTextStyle(1.7 * GLOBAL.ui.bodyTextSize),
 		width: GLOBAL.slot.width,
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 1.7 * GLOBAL.ui.bodyTextSize,
+		marginBottom: GLOBAL.ui.bodyTextSize,
 		color: GLOBAL.ui.palette[0],
 	},
 
-	promptImg: {
+	promptImgContainer: {
 		width: promptContentWidth,
 		height: 0.6 * promptContentWidth,
+		backgroundColor: GLOBAL.ui.palette[0],
+		borderRadius: GLOBAL.screen.horizOffset,
+	},
+
+	promptImg: {
+		width: "100%",
+		height: "100%",
 		borderWidth: GLOBAL.ui.inputBorderWidth,
 		borderColor: GLOBAL.ui.palette[0],
 		borderRadius: GLOBAL.screen.horizOffset,
-		marginTop: GLOBAL.ui.bodyTextSize,
+		overflow: "hidden",
 	},
 
 	promptSubtitle: {
-		width: "90%",
+		width: "100%",
 		textAlign: "center",
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: 0.7 * GLOBAL.ui.bodyTextSize,
+		...GLOBAL.ui.bodyTextStyle(0.7 * GLOBAL.ui.bodyTextSize),
 		color: GLOBAL.ui.palette[0],
 		marginTop: GLOBAL.ui.bodyTextSize,
 	},
@@ -125,14 +191,6 @@ const styles = StyleSheet.create({
 	promptBottomContainer: {
 		alignItems: "center",
 		width: "100%",
-		// marginBottom: promptBtnHeight / 2,
-	},
-
-	promptNotNowText: {
-		fontFamily: "Trickster-Reg-Semi",
-		fontSize: GLOBAL.ui.bodyTextSize,
-		color: GLOBAL.ui.palette[0],
-		textDecorationLine: "underline",
 	},
 
 	slotMask: {
@@ -168,38 +226,6 @@ const styles = StyleSheet.create({
 	},
 });
 
-
-type PromptTypes = {
-	animStyle: any;
-	title: string;
-	img: any;
-	imgColor: any;
-	subtitles: string[];
-	btn: any;
-}
-const Prompt = (props: PromptTypes) => {
-	return (
-		<ReanimatedSafeAreaView style={[styles.prompt, props.animStyle]}>
-			<View style={[styles.promptTopContainer, GLOBAL.ui.btnShadowStyle(), GLOBAL.ui.skewStyle]}>
-				<Text style={styles.promptTitle}>{ props.title }</Text>
-
-				<ExpoImage
-					style={[styles.promptImg, { backgroundColor: props.imgColor }]}
-					source={props.img}
-					contentFit="cover"
-				/>
-
-				{props.subtitles.map((subtitle, s) => (
-					<Text key={`prompt-subtitle${s}`} style={styles.promptSubtitle}>{subtitle}</Text>
-				))}
-			</View>
-
-			<View style={[styles.promptBottomContainer, GLOBAL.ui.skewStyle]}>
-				{props.btn}
-			</View>
-		</ReanimatedSafeAreaView>
-	);
-}
 
 export default function Layout() {
 	//* Screen offset
@@ -248,6 +274,7 @@ export default function Layout() {
 					WriteNewSaveToFile(); //^ Save write
 				}
 				else ActiveCity.setNextBodyTimes();
+				// ActiveCity.setNextBodyTimes();
 				await ScheduleNotifs();
 				setIsReadyForSlot(true);
 			})();
@@ -257,11 +284,11 @@ export default function Layout() {
 
 	//* Fonts
 	const [fontsLoaded, fontsError] = useFonts({
-		"Trickster": require("../assets/fonts/Trickster-Reg-Semi.otf"),
-		"Hades TallFat": require("../assets/fonts/Hades/Hades-TallFat.ttf"),
-		"Hades ShortFat": require("../assets/fonts/Hades/Hades-ShortFat.ttf"),
-		"Hades SuperShortFat": require("../assets/fonts/Hades/Hades-SuperShortFat.ttf"),
-		"Hades ShortSkinny": require("../assets/fonts/Hades/Hades-ShortSkinny.ttf"),
+		"trickster_reg_semi": require("../assets/fonts/trickster_reg_semi.otf"),
+		"hades_tall_fat": require("../assets/fonts/hades/hades_tall_fat.ttf"),
+		"hades_short_fat": require("../assets/fonts/hades/hades_short_fat.ttf"),
+		"hades_super_short_fat": require("../assets/fonts/hades/hades_super_short_fat.ttf"),
+		"hades_short_skinny": require("../assets/fonts/hades/hades_short_skinny.ttf"),
 	});
 
 
@@ -373,7 +400,10 @@ export default function Layout() {
 						);
 					}, [ActiveTab]);
 
-					const tabFillAnimStyle = useAnimatedProps(() => {
+					const tabFillAnimStyle0 = useAnimatedProps(() => {
+						return { fill: GLOBAL.ui.palette[2] }
+					});
+					const tabFillAnimStyle1 = useAnimatedProps(() => {
 						return {
 							fill: interpolateColor(
 								tabFillProgress.value,
@@ -391,7 +421,21 @@ export default function Layout() {
 						return { opacity: tabFillProgress.value }
 					});
 
-					const tabIconAnimStyle = useAnimatedProps(() => {
+					const tabIconAnimStyle0 = useAnimatedProps(() => {
+						return {
+							fill: interpolateColor(
+								tabFillProgress.value,
+								[0, 1],
+								[GLOBAL.ui.palette[2], GLOBAL.pluto.palette[1] + "88"]
+							),
+							stroke: interpolateColor(
+								tabFillProgress.value,
+								[0, 1],
+								[GLOBAL.ui.palette[2], GLOBAL.pluto.palette[1] + "88"]
+							),
+						}
+					});
+					const tabIconAnimStyle1 = useAnimatedProps(() => {
 						return {
 							fill: interpolateColor(
 								tabFillProgress.value,
@@ -413,21 +457,34 @@ export default function Layout() {
 							pointerEvents="none"
 						>
 							{/* Tab fills */}
-							<Svg
-								style={[
-									{ width: "100%", height: "100%" },
-									(t !== ActiveTab && t !== tabBeingPressed) && GLOBAL.ui.btnShadowStyle()
-								]}
-								width={GLOBAL.slot.width}
-								height={GLOBAL.nav.height + 1}
-								viewBox={`0 0 100 ${GLOBAL.nav.ratio * 100}`}
-							>
-								<ReanimatedPath
-									key={`tab-path${tab.key}`}
-									animatedProps={tabFillAnimStyle}
-									d={tab.handlePath}
-								/>
-							</Svg>
+							{Array.from({ length: (Platform.OS == "android") ? 2 : 1 }).map((_, i) => (
+								<View
+									key={`tab-fill${i}`}
+									style={[
+										{
+											position: "absolute",
+											width: GLOBAL.slot.width,
+											height: GLOBAL.nav.height + 1
+										},
+										(i == 0 && Platform.OS == "android") && {
+											transform: [{ translateY: (t !== ActiveTab) ? GLOBAL.ui.inputBorderWidth : 0 }],
+											filter: (t !== ActiveTab) ? [{ blur: 2 }] : [],
+										}
+									]}
+								>
+									<Svg
+										style={(t !== ActiveTab && t !== tabBeingPressed) && GLOBAL.ui.textShadowStyle()}
+										width="100%"
+										height="100%"
+										viewBox={`0 0 100 ${GLOBAL.nav.ratio * 100}`}
+									>
+										<ReanimatedPath
+											animatedProps={(i == 0 && Platform.OS == "android") ? tabFillAnimStyle0 : tabFillAnimStyle1}
+											d={tab.handlePath}
+										/>
+									</Svg>
+								</View>
+							))}
 
 							{/* Tab aero states */}
 							<Reanimated.View style={[styles.tabImg, tabUnpressedImgAnimStyle]}>
@@ -446,23 +503,35 @@ export default function Layout() {
 							</Reanimated.View>
 
 							{/* Tab icons */}
-							<Svg
-								style={[
-									styles.tabIcon,
-									tab.iconStyle,
-									GLOBAL.ui.btnShadowStyle(
-										(t !== ActiveTab) ? "down" : "middle",
-										(t !== ActiveTab) ? "black" : GLOBAL.pluto.palette[1]
-									)
-								]}
-								viewBox="0 0 100 100"
-							>
-								<ReanimatedPath
-									animatedProps={tabIconAnimStyle}
-									strokeWidth={2}
-									d={tab.iconPath}
-								/>
-							</Svg>
+							{Array.from({ length: (Platform.OS == "android") ? 2 : 1 }).map((_, i) => (
+								<View
+									key={`tab-icon${i}`}
+									style={[
+										styles.tabIcon,
+										tab.iconStyle,
+										(i == 0 && Platform.OS == "android") && {
+											transform: [{ translateY: (t !== ActiveTab) ? GLOBAL.ui.inputBorderWidth : 0 }],
+											filter: [{ blur: 2 }],
+										}
+									]}
+								>
+									<Svg
+										style={GLOBAL.ui.textShadowStyle(
+											(t !== ActiveTab) ? "down" : "middle",
+											(t !== ActiveTab) ? "black" : GLOBAL.pluto.palette[1]
+										)}
+										width="100%"
+										height="100%"
+										viewBox="0 0 100 100"
+									>
+										<ReanimatedPath
+											animatedProps={(i == 0 && Platform.OS == "android") ? tabIconAnimStyle0 : tabIconAnimStyle1}
+											strokeWidth={2}
+											d={tab.iconPath}
+										/>
+									</Svg>
+								</View>
+							))}
 						</View>
 					);
 				})}
@@ -565,7 +634,7 @@ export default function Layout() {
 				img={require("../assets/images/prompts/notifications-shear.jpg")}
 				imgColor="#d4d5d0"
 				subtitles={[
-					`${Application.applicationName} can send notifications to remind you when your next Pluto Time occurs.`,
+					"Pluto Timer Lite can send notifications to remind you when your next Pluto Time occurs.",
 					"Turning on notifications allows you to receive a reminder for Pluto Times in the first, second, or both halves of the day, helping you make the most of the moment!",
 					"This option can be changed later in the Settings app."
 				]}
@@ -596,7 +665,7 @@ export default function Layout() {
 				img={require("../assets/images/prompts/location-shear.jpg")}
 				imgColor="black"
 				subtitles={[
-					`${Application.applicationName} can use your latitude/longitude to\ndetermine your geolocation and solar altitude,\nkind of like a weather app.`,
+					"Pluto Timer Lite can use your latitude/longitude to determine your geolocation and solar altitude, kind of like a weather app.",
 					"Turning on location services ensures your Pluto Times stay accurate wherever you go!",
 					"Your location data won't be used for any other purposes. This option can be changed later in the Settings app."
 				]}
