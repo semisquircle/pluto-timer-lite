@@ -394,11 +394,11 @@ export default function CityScreen() {
 
 
 	//* Map
-	const latRad = ActiveCity.lat * Math.PI / 180;
-	const baseX = Math.floor(n * ((ActiveCity.lng + 180) / 360));
+	const latRad = ActiveCity?.lat * Math.PI / 180;
+	const baseX = Math.floor(n * ((ActiveCity?.lng + 180) / 360));
 	const baseY = Math.floor(n * (1 - (Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI)) / 2);
-	const fullName = ActiveCity.fullName.split(", ");
-	const pinName = ActiveCity.name + ", " + (states[fullName[1]] || provinces[fullName[1]] || fullName[1]);
+	const fullName = ActiveCity?.fullName?.split(", ");
+	const pinName = ActiveCity?.name + ", " + (states[fullName[1]] || provinces[fullName[1]] || fullName[1]);
 
 
 	//* Components
@@ -429,7 +429,7 @@ export default function CityScreen() {
 								await Geolocate();
 								await ScheduleNotifs();
 							}
-							// else ActiveCity.setNextBodyTimes();
+							// else ActiveCity?.setNextBodyTimes();
 							SetYouAreHere(!YouAreHere);
 							WriteNewSaveToFile(); //^ Save write
 						}
@@ -546,7 +546,7 @@ export default function CityScreen() {
 										setCityResults([]);
 									}}
 								>
-									<Text style={styles.cityResultText} numberOfLines={1}>{cityResults[i].fullName}</Text>
+									<Text style={styles.cityResultText} numberOfLines={1}>{city.fullName}</Text>
 								</TouchableOpacity>
 							))}
 						</ScrollView>
@@ -627,8 +627,8 @@ export default function CityScreen() {
 				</View>
 
 				<Text style={styles.latLng}>
-					{toDMS(ActiveCity.lat, true)}{"\n"}
-					{toDMS(ActiveCity.lng, false)}
+					{toDMS(ActiveCity?.lat, true)}{"\n"}
+					{toDMS(ActiveCity?.lng, false)}
 				</Text>
 			</View>
 

@@ -82,6 +82,7 @@ const tabArray: {
 //* Prompts
 const promptContentWidth = GLOBAL.slot.width - (2 * GLOBAL.screen.horizOffset);
 const promptBtnHeight = 80;
+const promptSubtitleTextSize = 0.7 * GLOBAL.ui.bodyTextSize;
 
 type PromptTypes = {
 	animStyle: any;
@@ -95,10 +96,13 @@ const Prompt = (props: PromptTypes) => {
 	return (
 		<ReanimatedSafeAreaView style={[styles.prompt, props.animStyle]}>
 			<View style={[styles.promptTopContainer, GLOBAL.ui.skewStyle()]}>
-				<Text style={[
-					styles.promptTitle,
-					GLOBAL.ui.textShadowStyle(),
-				]}>
+				<Text
+					style={[
+						styles.promptTitle,
+						GLOBAL.ui.textShadowStyle(),
+					]}
+					numberOfLines={1}
+				>
 					{props.title}
 				</Text>
 
@@ -143,15 +147,16 @@ const styles = StyleSheet.create({
 
 	prompt: {
 		position: "absolute",
-		justifyContent: "space-between",
+		justifyContent: "flex-end",
 		alignItems: "center",
 		width: GLOBAL.screen.width,
 		height: GLOBAL.screen.height,
-		paddingTop: promptBtnHeight,
 		paddingBottom: promptBtnHeight / 2,
 	},
 
 	promptTopContainer: {
+		flex: 1,
+		justifyContent: "center",
 		alignItems: "center",
 		width: promptContentWidth,
 	},
@@ -160,7 +165,7 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		...GLOBAL.ui.bodyTextStyle(1.7 * GLOBAL.ui.bodyTextSize),
 		width: GLOBAL.slot.width,
-		marginBottom: GLOBAL.ui.bodyTextSize,
+		marginBottom: promptSubtitleTextSize,
 		color: GLOBAL.ui.palette[0],
 	},
 
@@ -181,11 +186,11 @@ const styles = StyleSheet.create({
 	},
 
 	promptSubtitle: {
-		width: "100%",
+		maxWidth: 21 * promptSubtitleTextSize,
 		textAlign: "center",
-		...GLOBAL.ui.bodyTextStyle(0.7 * GLOBAL.ui.bodyTextSize),
+		...GLOBAL.ui.bodyTextStyle(promptSubtitleTextSize),
 		color: GLOBAL.ui.palette[0],
-		marginTop: GLOBAL.ui.bodyTextSize,
+		marginTop: promptSubtitleTextSize,
 	},
 
 	promptBottomContainer: {
@@ -256,6 +261,7 @@ export default function Layout() {
 
 	useEffect(() => {
 		GLOBAL.screen.topOffset = screenInsets.top;
+		if (Platform.OS == "android") GLOBAL.screen.bottomOffset = screenInsets.bottom;
 		InitDefaultSaveData();
 
 		//? Development
@@ -273,8 +279,8 @@ export default function Layout() {
 					await Geolocate();
 					WriteNewSaveToFile(); //^ Save write
 				}
-				else ActiveCity.setNextBodyTimes();
-				// ActiveCity.setNextBodyTimes();
+				// ActiveCity?.setNextBodyTimes(); //? Development
+				else ActiveCity?.setNextBodyTimes(); //? Production
 				await ScheduleNotifs();
 				setIsReadyForSlot(true);
 			})();

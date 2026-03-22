@@ -75,7 +75,8 @@ export default function HomeScreen() {
 	const getFontWidth = (text: string, font: GLOBAL.TimeFont) => {
 		return text.split("").reduce((w, char, i) => {
 			const glyph = font.glyph_widths.find(g => g.char === char);
-			return w + glyph!.width + ((i < text.length - 1) ? font.spacing : 0);
+			if (!glyph) return w;
+			return w + glyph.width + ((i < text.length - 1) ? font.spacing : 0);
 		}, 0);
 	}
 
@@ -83,8 +84,8 @@ export default function HomeScreen() {
 		return ((GLOBAL.slot.width - (2 * padding)) / width) * font.glyph_height;
 	}
 
-	const nextBodyTime = (IsFormat24Hour) ? ActiveCity.get24HourClockTime() : ActiveCity.get12HourClockTime();
-	const nextBodyDate = ActiveCity.getDateLong();
+	const nextBodyTime = (IsFormat24Hour) ? ActiveCity?.get24HourClockTime() : ActiveCity?.get12HourClockTime();
+	const nextBodyDate = ActiveCity?.getDateLong();
 
 	let nextBodyTimeFont = GLOBAL.ui.timeFonts[(IsFormat24Hour) ? 2 : 0];
 	let nextBodyTimeFontWidth = getFontWidth(nextBodyTime, nextBodyTimeFont);
@@ -100,24 +101,24 @@ export default function HomeScreen() {
 
 	const locationNameTextOffset = GLOBAL.screen.horizOffset;
 	const locationNameTextSize =
-		(ActiveCity.name.length > 20) ? GLOBAL.ui.bodyTextSize
-		: (ActiveCity.name.length > 10) ? 1.5 * GLOBAL.ui.bodyTextSize
+		(ActiveCity?.name?.length > 20) ? GLOBAL.ui.bodyTextSize
+		: (ActiveCity?.name?.length > 10) ? 1.5 * GLOBAL.ui.bodyTextSize
 		: 2 * GLOBAL.ui.bodyTextSize;
 	const youAreHereTextOffset = locationNameTextOffset + locationNameTextSize + 3;
 	const youAreHereTextSize = 0.6 * GLOBAL.ui.bodyTextSize;
 
 
 	//* Is body time now?
-	const [isBodyTimeNow, setIsBodyTimeNow] = useState(ActiveCity.isBodyTimeNow());
+	const [isBodyTimeNow, setIsBodyTimeNow] = useState(ActiveCity?.isBodyTimeNow());
 	useEffect(() => {
-		const untilBodyTime = ActiveCity.nextBodyTimes[0].getTime() - Date.now();
+		const untilBodyTime = ActiveCity?.nextBodyTimes[0].getTime() - Date.now();
 		
 		const scheduleBodyTime = setTimeout(() => {
 			setIsBodyTimeNow(true);
 		}, untilBodyTime);
 
 		const transpireBodyTime = setTimeout(() => {
-			ActiveCity.setNextBodyTimes();
+			ActiveCity?.setNextBodyTimes();
 			setIsBodyTimeNow(false);
 		}, untilBodyTime + GLOBAL.bodyTimeLength);
 
@@ -127,7 +128,7 @@ export default function HomeScreen() {
 				clearTimeout(transpireBodyTime);
 			}
 		}
-	}, [ActiveCity.nextBodyTimes, isBodyTimeNow]);
+	}, [ActiveCity?.nextBodyTimes, isBodyTimeNow]);
 
 	const nextBodyTimeProgress = useSharedValue((isBodyTimeNow) ? 0 : 1);
 	const nowProgress = useSharedValue((isBodyTimeNow) ? 1 : 0);
@@ -319,13 +320,13 @@ export default function HomeScreen() {
 					style={[styles.nextBodyTimeContainer, GLOBAL.ui.skewStyle(), nextBodyTimeAnimStyle]}
 					pointerEvents="none"
 				>
-					<Text style={[styles.nextText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]}>
+					<Text style={[styles.nextText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]} numberOfLines={1}>
 						{"Your next "}
 						<Text style={{ color: bodyTextColor }}>Pluto Time</Text>
 						{" will occur at"}
 					</Text>
 					<Text style={styles.nextBodyTime} numberOfLines={1}>{nextBodyTime}</Text>
-					<Text style={[styles.dateText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]}>
+					<Text style={[styles.dateText, GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize)]} numberOfLines={1}>
 						on <Text style={{ color: bodyTextColor }}>{nextBodyDate}</Text>
 					</Text>
 				</Reanimated.View>
@@ -386,7 +387,7 @@ export default function HomeScreen() {
 						textAnchor="middle"
 					>
 						<TextPath href="#semi-ellipse-city" startOffset="56%">
-							<TSpan>{ActiveCity.name}</TSpan>
+							<TSpan>{ActiveCity?.name}</TSpan>
 						</TextPath>
 					</SvgText>
 				</Svg>

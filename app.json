@@ -119,6 +119,9 @@
           "ios": {
             "useFrameworks": "static",
             "buildReactNativeFromSource": true
+          },
+          "android": {
+            "enableMinifyInReleaseBuilds": true
           }
         }
       ]

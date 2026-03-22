@@ -134,13 +134,16 @@ export const RectBtn = (props: RectBtnProps) => {
 						}
 					]}
 				>
-					<Text style={[
-						{
-							...GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
-							color: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : GLOBAL.ui.palette[0],
-						},
-						GLOBAL.ui.textShadowStyle()
-					]}>
+					<Text
+						style={[
+							{
+								...GLOBAL.ui.bodyTextStyle(GLOBAL.ui.bodyTextSize),
+								color: (i == 0 && Platform.OS == "android") ? GLOBAL.ui.palette[2] : GLOBAL.ui.palette[0],
+							},
+							GLOBAL.ui.textShadowStyle()
+						]}
+						numberOfLines={1}
+					>
 						{props.text}
 					</Text>
 				</View>

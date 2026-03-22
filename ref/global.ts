@@ -246,23 +246,23 @@ export class City {
 	}
 
 	get12HourClockTime() {
-		return this.nextBodyTimes[0].toLocaleTimeString(undefined, {
+		return this.nextBodyTimes[0].toLocaleTimeString("en-US", {
 			hour: "numeric",
 			minute: "2-digit",
-			hour12: true
+			hour12: true,
 		}).replace(/\s/g, "");
 	}
 
 	get24HourClockTime() {
-		return this.nextBodyTimes[0].toLocaleTimeString(undefined, {
+		return this.nextBodyTimes[0].toLocaleTimeString("en-US", {
 			hour: "numeric",
 			minute: "2-digit",
-			hour12: false
-		});
+			hour12: false,
+		}).replace(/\s/g, "");
 	}
 
 	getDateLong() {
-		return this.nextBodyTimes[0].toLocaleDateString(undefined, {
+		return this.nextBodyTimes[0].toLocaleDateString("en-US", {
 			weekday: "long",
 			year: "numeric",
 			month: "long",
@@ -386,7 +386,7 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 	geolocate: async () => {
 		const { granted: locGranted } = await ExpoLocation.getForegroundPermissionsAsync();
 		if (locGranted) {
-			const position = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Lowest });
+			const position = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Low });
 			const lat = position.coords.latitude;
 			const lon = position.coords.longitude;
 			// const lat = 42.15032;
@@ -400,7 +400,7 @@ export const useSaveStore = create<saveStoreTypes>((set, get) => ({
 			const name = parts.filter(Boolean)[0];
 			const fullName = parts.filter(Boolean).join(", ");
 			const city = new City(name!, fullName, lat, lon);
-			city.setNextBodyTimes();
+			city?.setNextBodyTimes();
 			get().setActiveCity(city);
 			console.log(`Geolocation was a success! Location set to: ${name}`);
 		}

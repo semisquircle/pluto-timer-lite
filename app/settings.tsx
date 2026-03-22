@@ -331,7 +331,7 @@ export default function SettingsScreen() {
 						color={btnBgColor}
 						pressedColor={GLOBAL.pluto.palette[3]}
 						onPressIn={() => setIsUpgradeBtnPressed(true)}
-						onPress={() => Linking.openURL(upgradeURL)}
+						onPress={() => upgradeURL && Linking.openURL(upgradeURL)}
 						onPressOut={() => setIsUpgradeBtnPressed(false)}
 					/>
 
@@ -355,7 +355,7 @@ export default function SettingsScreen() {
 									borderColor: interpolateColor(
 										notifFreqAnimProgress.value,
 										[0, 1],
-										[inputOffColor!, GLOBAL.ui.palette[0]]
+										[inputOffColor, GLOBAL.ui.palette[0]]
 									)
 								}
 							});
@@ -374,7 +374,7 @@ export default function SettingsScreen() {
 									stroke: interpolateColor(
 										notifFreqAnimProgress.value,
 										[0, 1],
-										[inputOffColor!, option.palette[0]]
+										[inputOffColor, option.palette[0]]
 									),
 								};
 							});
@@ -384,7 +384,7 @@ export default function SettingsScreen() {
 									fill: interpolateColor(
 										notifFreqAnimProgress.value,
 										[0, 1],
-										[inputOffColor!, option.palette[2]]
+										[inputOffColor, option.palette[2]]
 									),
 								};
 							});
@@ -394,7 +394,7 @@ export default function SettingsScreen() {
 									fill: interpolateColor(
 										notifFreqAnimProgress.value,
 										[0, 1],
-										[inputOffColor!, option.palette[0]]
+										[inputOffColor, option.palette[0]]
 									),
 								};
 							});
