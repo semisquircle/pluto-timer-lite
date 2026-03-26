@@ -1,4 +1,4 @@
-# Pluto Time Lite
+# Pluto Timer Lite
 A (free) cross-platform app for determining when the next Pluto Time will occur.\
 This free version has the following limitations:
 - No other planet/moon times are offered besides Pluto
