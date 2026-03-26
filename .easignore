@@ -59,11 +59,3 @@ uncompressed/
 
 /assets/images/upgrade/*
 !/assets/images/upgrade/upgrade-shear.jpg
-
-/assets/images/app-icon/ios/*
-!/assets/images/app-icon/ios/icon-full.png
-/assets/images/app-icon/android/*
-!/assets/images/app-icon/android/background.png
-!/assets/images/app-icon/android/foreground.png
-!/assets/images/app-icon/android/monochrome.png
-!/assets/images/app-icon/android/notification.png

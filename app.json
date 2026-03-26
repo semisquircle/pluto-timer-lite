@@ -4,7 +4,7 @@
     "slug": "pluto-timer-lite",
     "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon/ios/icon-full.png",
+    "icon": "./assets/images/app-icons/ios/full.png",
     "scheme": "plutotimerlite",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,9 +16,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundImage": "./assets/images/app-icon/android/background.png",
-        "foregroundImage": "./assets/images/app-icon/android/foreground.png",
-        "monochromeImage": "./assets/images/app-icon/android/monochrome.png"
+        "backgroundImage": "./assets/images/app-icons/android/background.png",
+        "foregroundImage": "./assets/images/app-icons/android/foreground.png",
+        "monochromeImage": "./assets/images/app-icons/android/monochrome.png"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.semisquircle.plutotimerlite",
@@ -28,18 +28,13 @@
         "SCHEDULE_EXACT_ALARM"
       ]
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/app-icon/favicon.png"
-    },
     "plugins": [
       "expo-asset",
       "expo-router",
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/app-icon/android/notification.png",
+          "icon": "./assets/images/app-icons/android/notification.png",
           "color": "#A69171",
           "defaultChannel": "default"
         }
